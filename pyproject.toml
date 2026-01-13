@@ -1,0 +1,36 @@
+[project]
+name = "server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.116.1",
+    "matplotlib>=3.10.8",
+    "numpy>=2.3.2",
+    "pandas>=2.3.3",
+    "pybaselines>=1.2.1",
+    "pydantic>=2.11.7",
+    "pywavelets>=1.9.0",
+    "pyyawt",
+    "scipy>=1.16.1",
+    "sqlmodel>=0.0.24",
+    "uvicorn>=0.35.0",
+]
+
+[dependency-groups]
+dev = [
+    "cibuildwheel>=3.3.1",
+    "cython>=3.2.4",
+    "pyinstaller>=6.16.0",
+    "pywebview>=6.0",
+]
+
+[tool.setuptools]
+
+
+
+[tool.uv.sources]
+pyyawt = { path = "../../../Downloads/ECG_UHD-master/pyyawt/dist/pyyawt-0.1.2.dev0+f4f6416-cp314-cp314-win_amd64.whl" }
+
+

@@ -1,0 +1,1551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Files>
+    <SampleContainer>
+      <RawFileName>ladder_H1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.2_G1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.2_F1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.3_E1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.3_D1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.4_C1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-7-0.4_B1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>ladder_A1.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>ladder_H2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.2_G2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.2_F2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.3_E2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.3_D2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.4_C2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-6-0.4_B2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>ladder_A2.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>ladder_H3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.2_G3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.2_F3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.3_E3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.3_D3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.4_C3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>1-5-0.4_B3.frf</RawFileName>
+    </SampleContainer>
+    <SampleContainer>
+      <RawFileName>ladder_A3.frf</RawFileName>
+    </SampleContainer>
+  </Files>
+  <Template>
+    <SampleNames>
+      <string>ladder</string>
+      <string>1-7-0.2</string>
+      <string>1-7-0.2</string>
+      <string>1-7-0.3</string>
+      <string>1-7-0.3</string>
+      <string>1-7-0.4</string>
+      <string>1-7-0.4</string>
+      <string>ladder</string>
+      <string>ladder</string>
+      <string>1-6-0.2</string>
+      <string>1-6-0.2</string>
+      <string>1-6-0.3</string>
+      <string>1-6-0.3</string>
+      <string>1-6-0.4</string>
+      <string>1-6-0.4</string>
+      <string>ladder</string>
+      <string>ladder</string>
+      <string>1-5-0.2</string>
+      <string>1-5-0.2</string>
+      <string>1-5-0.3</string>
+      <string>1-5-0.3</string>
+      <string>1-5-0.4</string>
+      <string>1-5-0.4</string>
+      <string>ladder</string>
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+    </SampleNames>
+    <FileTitles>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+      <string>&lt;Name&gt;</string>
+    </FileTitles>
+    <SampleComments>
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+    </SampleComments>
+    <ExperimentNames>
+      <string>D:\Нанофор 05\Lib\RU\Nondenaturing analysis.avtx</string>
+      <string>D:\Нанофор 05\Lib\RU\Nondenaturing analysis.avtx</string>
+      <string>D:\Нанофор 05\Lib\RU\Nondenaturing analysis.avtx</string>
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+    </ExperimentNames>
+    <ExperimentPrograms>
+      <string>D:\Нанофор 05\Lib\ND_DNA_25.naps</string>
+      <string>D:\Нанофор 05\Lib\ND_DNA_25.naps</string>
+      <string>D:\Нанофор 05\Lib\ND_DNA_25.naps</string>
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string xsi:nil="true" />
+      <string xsi:nil="true" />
+    </ExperimentPrograms>
+    <Parameters>
+      <ExperimentParameters>
+        <Parameters>
+          <ExperimentParameter>
+            <Name>SampPos</Name>
+            <Value>1</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>12</MaximumValue>
+            <Description>_Sample position</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjVolt</Name>
+            <Value>3000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение ввода пробы [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjTime</Name>
+            <Value>3</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время ввода пробы [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура первого термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature3</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура второго термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение префореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresTime</Name>
+            <Value>10</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время префореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение электрофореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresTime</Name>
+            <Value>220</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>25200</MaximumValue>
+            <Description>Время электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TimeDelayForez</Name>
+            <Value>100</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>4000</MaximumValue>
+            <Description>Время исключения регистрации электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepTime</Name>
+            <Value>1</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Длит. шага высокого при форезе [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepVoltage</Name>
+            <Value>3000</Value>
+            <MinimumValue>100</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напр. шага высокого при форезе [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrSpd</Name>
+            <Value>4</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>4</MaximumValue>
+            <Description>Скорость шприца при подготовке к префорезу [Шаг/сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrPosition</Name>
+            <Value>200</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов шприца при подг. к префорезу</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrFinishSteps</Name>
+            <Value>20</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов после фореза</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать термостат, =1 включать термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF3</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать 2-й термостат, =1 включать 2-й термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>CurrentPos</Name>
+            <Value>800</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>RTDF</Name>
+            <Value>700000</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+        </Parameters>
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters>
+          <ExperimentParameter>
+            <Name>SampPos</Name>
+            <Value>2</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>12</MaximumValue>
+            <Description>_Sample position</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjVolt</Name>
+            <Value>3000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение ввода пробы [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjTime</Name>
+            <Value>3</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время ввода пробы [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура первого термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature3</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура второго термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение префореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresTime</Name>
+            <Value>10</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время префореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение электрофореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresTime</Name>
+            <Value>220</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>25200</MaximumValue>
+            <Description>Время электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TimeDelayForez</Name>
+            <Value>100</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>4000</MaximumValue>
+            <Description>Время исключения регистрации электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepTime</Name>
+            <Value>1</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Длит. шага высокого при форезе [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepVoltage</Name>
+            <Value>3000</Value>
+            <MinimumValue>100</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напр. шага высокого при форезе [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrSpd</Name>
+            <Value>4</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>4</MaximumValue>
+            <Description>Скорость шприца при подготовке к префорезу [Шаг/сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrPosition</Name>
+            <Value>200</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов шприца при подг. к префорезу</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrFinishSteps</Name>
+            <Value>20</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов после фореза</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать термостат, =1 включать термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF3</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать 2-й термостат, =1 включать 2-й термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>CurrentPos</Name>
+            <Value>800</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>RTDF</Name>
+            <Value>700000</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+        </Parameters>
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters>
+          <ExperimentParameter>
+            <Name>SampPos</Name>
+            <Value>3</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>12</MaximumValue>
+            <Description>_Sample position</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjVolt</Name>
+            <Value>3000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение ввода пробы [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>InjTime</Name>
+            <Value>3</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время ввода пробы [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура первого термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>Temperature3</Name>
+            <Value>45</Value>
+            <MinimumValue>30</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Температура второго термостата [оC]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение префореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PrePhoresTime</Name>
+            <Value>10</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>360</MaximumValue>
+            <Description>Время префореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresVolt</Name>
+            <Value>15000</Value>
+            <MinimumValue>1000</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напряжение электрофореза [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>PhoresTime</Name>
+            <Value>220</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>25200</MaximumValue>
+            <Description>Время электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TimeDelayForez</Name>
+            <Value>100</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>4000</MaximumValue>
+            <Description>Время исключения регистрации электрофореза [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepTime</Name>
+            <Value>1</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>60</MaximumValue>
+            <Description>Длит. шага высокого при форезе [сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>StepVoltage</Name>
+            <Value>3000</Value>
+            <MinimumValue>100</MinimumValue>
+            <MaximumValue>15000</MaximumValue>
+            <Description>Напр. шага высокого при форезе [В]</Description>
+            <IsInteger>false</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrSpd</Name>
+            <Value>4</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>4</MaximumValue>
+            <Description>Скорость шприца при подготовке к префорезу [Шаг/сек]</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrPosition</Name>
+            <Value>200</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов шприца при подг. к префорезу</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>SyrFinishSteps</Name>
+            <Value>20</Value>
+            <MinimumValue>1</MinimumValue>
+            <MaximumValue>10000</MaximumValue>
+            <Description>Число шагов после фореза</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать термостат, =1 включать термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>TF3</Name>
+            <Value>1</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>1</MaximumValue>
+            <Description>=0 не включать 2-й термостат, =1 включать 2-й термостат</Description>
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>CurrentPos</Name>
+            <Value>800</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+          <ExperimentParameter>
+            <Name>RTDF</Name>
+            <Value>700000</Value>
+            <MinimumValue>0</MinimumValue>
+            <MaximumValue>0</MaximumValue>
+            <Description />
+            <IsInteger>true</IsInteger>
+          </ExperimentParameter>
+        </Parameters>
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+      <ExperimentParameters>
+        <Parameters />
+      </ExperimentParameters>
+    </Parameters>
+    <Queue>
+      <int>0</int>
+      <int>1</int>
+      <int>2</int>
+      <int>3</int>
+      <int>4</int>
+      <int>5</int>
+      <int>6</int>
+      <int>7</int>
+      <int>8</int>
+      <int>9</int>
+      <int>10</int>
+      <int>11</int>
+    </Queue>
+    <ExperimentComments>
+      <string>Длина фрагментов до 1500 нуклеотидов. Длительность – 11 мин.</string>
+      <string>Длина фрагментов до 1500 нуклеотидов. Длительность – 11 мин.</string>
+      <string>Длина фрагментов до 1500 нуклеотидов. Длительность – 11 мин.</string>
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+      <string />
+    </ExperimentComments>
+    <ExperimentDates>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+      <dateTime>0001-01-01T00:00:00</dateTime>
+    </ExperimentDates>
+    <AnalysisParameters>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+    </AnalysisParameters>
+    <SizeStandards>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>ND_Standard_New</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+      <string>Нет</string>
+    </SizeStandards>
+  </Template>
+  <User>user</User>
+  <Statuses>
+    <int>3</int>
+    <int>3</int>
+    <int>3</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+    <int>0</int>
+  </Statuses>
+  <SamplePresets>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName>NonDenaturing</DyeSetName>
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>AllelicLadder</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+    <SamplePreset>
+      <DyeSetName />
+      <TypeOfSample>Sample</TypeOfSample>
+    </SamplePreset>
+  </SamplePresets>
+  <HighLiftings>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+    <boolean>false</boolean>
+  </HighLiftings>
+</ProjectDocument>
