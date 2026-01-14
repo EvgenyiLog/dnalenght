@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: server
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi[standard-no-fastapi-cloud-cli]>=0.116.1
+Requires-Dist: matplotlib>=3.10.8
+Requires-Dist: numpy>=2.3.2
+Requires-Dist: pandas>=2.3.3
+Requires-Dist: pybaselines>=1.2.1
+Requires-Dist: pydantic>=2.11.7
+Requires-Dist: pywavelets>=1.9.0
+Requires-Dist: pyyawt
+Requires-Dist: scipy>=1.16.1
+Requires-Dist: sqlmodel>=0.0.24
+Requires-Dist: uvicorn>=0.35.0
+
+# dnalenght
+

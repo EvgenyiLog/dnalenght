@@ -6,8 +6,8 @@ from typing import Union, Optional, Callable
 def msbackadj(
     X: np.ndarray, 
     Y: np.ndarray, 
-    step_size: Union[int, float, Callable] = 200,
-    window_size: Union[int, float, Callable] = 200,
+    step_size: Union[int, float, Callable] = 40,
+    window_size: Union[int, float, Callable] = 140,
     regression_method: str = 'pchip',
     estimation_method: str = 'quantile',
     quantile_value: float = 0.1,
