@@ -247,6 +247,12 @@ def categorize_frf_files_by_title(
     # (используйте ваш исходный код с поиском по title_keyword)
     pass
 
+# --- алиас MATLAB-логики ---
+def categorize_frf_files_by_type(
+    input_path: Union[str, Path, List[Union[str, Path]]],
+    target_type: str = "Sample"
+):
+    return categorize_frf_files(input_path, target_type)
 
 # Пример использования с MATLAB-логикой:
 if __name__ == "__main__":
