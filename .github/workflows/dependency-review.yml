@@ -1,0 +1,6 @@
+version: 1
+ignore:
+  - reason: "approved-package"
+    pattern: "pip:django:4\\.2\\..*"
+allowed:
+  - dependency-name: "flake8"
