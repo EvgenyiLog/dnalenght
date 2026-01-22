@@ -32,8 +32,8 @@ jobs:
       - name: Show version
         run: |
           python - << 'EOF'
-          from src.yourpkg.version import __version__
-          print("Version:", __version__)
+          import version
+          print("Version:", version.__version__)
           EOF
 
       # ---- build ----
