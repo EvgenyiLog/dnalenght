@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-wheel:
-    runs-on: [ubuntu-latest,windows-latest]
+    runs-on: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
