@@ -1,0 +1,6 @@
+# MANIFEST.in
+exclude files/*
+exclude vendor/*
+exclude tests/*
+exclude docs/*
+recursive-include dnalenght *.py
