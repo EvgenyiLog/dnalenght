@@ -38,3 +38,18 @@ dev = [
 pyyawt = ["importlib-metadata>=4.0", "typing-extensions"]
 
 
+[tool.setuptools.find]
+exclude = [
+    "files*",
+    "vendor*", 
+    "test*",
+    "tests*",
+    "doc*",
+    "docs*",
+    "examples*",
+    "build*",
+    "dist*",
+    "*.egg-info*"
+]
+
+
