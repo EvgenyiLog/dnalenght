@@ -1,55 +1,92 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
-import numpy as np
+import os
 import io
-import traceback
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import StreamingResponse
 
-# Импортируем ваши существующие функции
-from analyze_peaks import analyze_peaks  # ← ваш файл
-from analyze_single_spectrum import analyze_spectrum  # ← ваш файл
+# Импорт версии
+from version import _version_
 
-app = FastAPI(title="nd-forez Signal Processor", version="0.1.0")
+# Импорт ваших функций (убедитесь, что файлы лежат в этой же папке)
+from readerfrf import parse_frf_file
+from subtract_reference_from_columns import subtract_reference_from_columns
+from msbackadj import msbackadj
 
-@app.get("/health")
-async def health():
-    return {"status": "ok", "message": "Server is running"}
+app = FastAPI(
+    title="DNA Length Signal Processor",
+    version=_version_
+)
 
-@app.post("/analyze/peaks")
-async def analyze_peaks_endpoint(file: UploadFile = File(...)):
-    """Анализ пиков из загруженного файла"""
+@app.post("/process-frf/", summary="Загрузить .frf и получить график")
+async def process_frf(file: UploadFile = File(...)):
+    # 1. Проверяем расширение
+    if not file.filename.endswith('.frf'):
+        raise HTTPException(status_code=400, detail="Файл должен быть формата .frf")
+
+    # Формируем путь для временного файла
+    temp_path = f"temp_{file.filename}"
+
     try:
+        # 2. Сохраняем загруженные байты в реальный файл
         content = await file.read()
-        # Предполагаем, что ваша функция принимает bytes или numpy array
-        # Адаптируйте под ваш формат входных данных
-        data = np.loadtxt(io.BytesIO(content), delimiter=',')  # пример для CSV
-        
-        result = analyze_peaks(data)  # ← вызов вашей функции
-        
-        return JSONResponse(content={"success": True, "result": result})
-    
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"success": False, "error": str(e), "traceback": traceback.format_exc()}
-        )
+        with open(temp_path, "wb") as f:
+            f.write(content)
 
-@app.post("/analyze/spectrum")
-async def analyze_spectrum_endpoint(file: UploadFile = File(...)):
-    """Анализ спектра"""
-    try:
-        content = await file.read()
-        data = np.loadtxt(io.BytesIO(content), delimiter=',')
+        # 3. Вызываем ваш парсер (теперь он видит файл по пути temp_path)
+        # Мы берем вторую попытку из вашего кода, где данные перезаписывались
+        matrix_df, channels_df, metadata = parse_frf_file(temp_path)
         
-        result = analyze_spectrum(data)  # ← ваша функция
+        # 4. Обработка сигнала (ваша логика)
+        # Вычитание референса
+        df_processed = subtract_reference_from_columns(channels_df, 50)
         
-        return JSONResponse(content={"success": True, "result": result})
-    
+        # Коррекция базовой линии
+        time = np.arange(len(df_processed))
+        signal_raw = df_processed['dR110'].values
+        signal_corrected = msbackadj(time, signal_raw)
+        
+        # Добавляем коррекцию в DataFrame (как в вашем исходнике)
+        df_processed['dR110_corr'] = signal_corrected
+
+        # 5. Отрисовка графика в память
+        plt.figure(figsize=(10, 5))
+        plt.plot(signal_raw, color='m', alpha=0.4, label='После subtract_reference')
+        plt.plot(signal_corrected, color='g', label='После msbackadj (Итог)')
+        plt.title(f"Сигнал: {metadata.get('Title', 'Без названия')}")
+        plt.xlabel("Отсчеты")
+        plt.ylabel("Амплитуда")
+        plt.legend()
+        plt.grid(True)
+
+        # Сохраняем в байтовый буфер вместо файла
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+        plt.close() # Важно закрыть график, чтобы не копился в памяти
+
+        # 6. Отправляем картинку пользователю
+        return StreamingResponse(buf, media_type="image/png")
+
     except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"success": False, "error": str(e)}
-        )
+        # Если что-то пошло не так (например, нет колонки dR110)
+        raise HTTPException(status_code=500, detail=f"Ошибка обработки: {str(e)}")
+    
+    finally:
+        # 7. ГАРАНТИРОВАННО удаляем временный файл
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+@app.get("/")
+def home():
+    return {
+        "status": "Online",
+        "version": _version_,
+        "docs": "/docs"
+    }
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    # Запуск сервера на порту 8000
+    uvicorn.run(app, host="180.0.0.0", port=8000)
