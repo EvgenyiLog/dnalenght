@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from subtract_reference_from_columns import subtract_reference_from_columns
 from msbackadj import msbackadj
 from categorize_frf_files import categorize_frf_files
-import pyyawt
+# import pyyawt
 from reveal_paths import reveal_paths,extract_paths_from_categorize
 def main():
     matrix_df, channels_df, metadata=parse_frf_file( r"C:\Users\Admin\Documents\GitHub\dnalenght\files\Anton_lib_test_2_17_56_29\0.1-5-0.2_F9.frf")
@@ -44,12 +44,12 @@ def main():
 
     signal = df['dR110'].values
     print(f"Длина исходного сигнала: {len(signal)}")
-    [signal_corrected,CXD,LXD] = pyyawt.wden(signal,'sqtwolog','s','sln',1,'sym2')
-    print(f"Длина результата: {len(signal_corrected)}")
-    df['dR110_corr'] = signal_corrected
-    plt.figure() 
-    df.loc[:,'dR110'].plot(color='k')
-    plt.grid(True)
+    # [signal_corrected,CXD,LXD] = pyyawt.wden(signal,'sqtwolog','s','sln',1,'sym2')
+    # print(f"Длина результата: {len(signal_corrected)}")
+    # df['dR110_corr'] = signal_corrected
+    # plt.figure() 
+    # df.loc[:,'dR110'].plot(color='k')
+    # plt.grid(True)
                                    
 
 

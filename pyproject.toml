@@ -12,7 +12,6 @@ dependencies = [
     "pybaselines[full]>=1.2.1",
     "pydantic>=2.11.7",
     "pywavelets>=1.9.0",
-    "pyyawt",
     "scipy>=1.16.1",
     "sqlmodel>=0.0.24",
     "uvicorn>=0.35.0",
@@ -23,6 +22,7 @@ dev = [
     "cibuildwheel>=3.3.1",
     "cython>=3.2.4",
     "poethepoet>=0.40.0",
+    "pre-commit",
     "pyinstaller>=6.16.0",
     "pywebview>=6.0",
 ]
@@ -32,5 +32,9 @@ dev = [
 
 
 [tool.uv.sources]
+
+
+[tool.uv.extra-build-dependencies]
+pyyawt = ["importlib-metadata>=4.0", "typing-extensions"]
 
 
