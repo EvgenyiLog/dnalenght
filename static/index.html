@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DNA Signal Processor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .upload-section {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .file-list {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .file-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .file-item:hover {
+            background: #e7f3ff;
+        }
+
+        .file-item.active {
+            background: #007bff;
+            color: white;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 450px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>🧬 Обработка FRF сигналов</h2>
+
+        <div class="upload-section">
+            <p>Выберите папку с данными или отдельный файл</p>
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+            <input type="file" id="fileInput" accept=".frf" style="display:none">
+
+            <button onclick="document.getElementById('fileInput').click()">Выбрать файл</button>
+            <button onclick="document.getElementById('folderInput').click()" style="background: #6c757d;">Выбрать
+                папку</button>
+        </div>
+
+        <div id="fileListContainer" style="display:none;">
+            <strong>Найдено файлов (.frf):</strong>
+            <div class="file-list" id="fileList"></div>
+        </div>
+
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        let chart;
+        let selectedFile = null;
+
+        // Обработка выбора папки/файлов
+        const handleFiles = (e) => {
+            const files = Array.from(e.target.files);
+            // Фильтруем ТОЛЬКО .frf файлы
+            const frfFiles = files.filter(file => file.name.toLowerCase().endsWith('.frf'));
+
+            const listElement = document.getElementById('fileList');
+            const container = document.getElementById('fileListContainer');
+            listElement.innerHTML = '';
+
+            if (frfFiles.length > 0) {
+                container.style.display = 'block';
+                frfFiles.forEach(file => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `<span>${file.name}</span> <small>${(file.size / 1024).toFixed(1)} KB</small>`;
+                    item.onclick = () => {
+                        // Визуальное выделение и запуск обработки
+                        document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                        processFile(file);
+                    };
+                    listElement.appendChild(item);
+                });
+            } else {
+                alert("В выбранном месте не найдено .frf файлов!");
+            }
+        };
+
+        document.getElementById('fileInput').onchange = handleFiles;
+        document.getElementById('folderInput').onchange = handleFiles;
+
+        async function processFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Запрос к вашему FastAPI
+                const response = await fetch('/process-frf-json/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Ошибка сервера");
+
+                const data = await response.json();
+                renderChart(data);
+            } catch (err) {
+                alert("Ошибка при обработке файла: " + err.message);
+            }
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if (chart) chart.destroy();
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets
+                },
+                options: {
+                    responsive: true,
+                    animation: false, // Отключаем анимацию для больших данных
+                    elements: { point: { radius: 0 } }, // Убираем точки для производительности
+                    plugins: {
+                        title: { display: true, text: data.title },
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Отсчеты' } },
+                        y: { title: { display: true, text: 'Амплитуда' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -5,6 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # Импорт версии
 from version import _version_
@@ -17,6 +21,13 @@ from msbackadj import msbackadj
 app = FastAPI(
     title="DNA Length Signal Processor",
     version=_version_
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить запросы отовсюду
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.post("/process-frf/", summary="Загрузить .frf и получить график")
@@ -50,24 +61,50 @@ async def process_frf(file: UploadFile = File(...)):
         # Добавляем коррекцию в DataFrame (как в вашем исходнике)
         df_processed['dR110_corr'] = signal_corrected
 
-        # 5. Отрисовка графика в память
-        plt.figure(figsize=(10, 5))
-        plt.plot(signal_raw, color='m', alpha=0.4, label='После subtract_reference')
-        plt.plot(signal_corrected, color='g', label='После msbackadj (Итог)')
-        plt.title(f"Сигнал: {metadata.get('Title', 'Без названия')}")
-        plt.xlabel("Отсчеты")
-        plt.ylabel("Амплитуда")
-        plt.legend()
-        plt.grid(True)
+        # # 5. Отрисовка графика в память
+        # plt.figure(figsize=(10, 5))
+        # plt.plot(signal_raw, color='m', alpha=0.4, label='После subtract_reference')
+        # plt.plot(signal_corrected, color='g', label='После msbackadj (Итог)')
+        # plt.title(f"Сигнал: {metadata.get('Title', 'Без названия')}")
+        # plt.xlabel("Отсчеты")
+        # plt.ylabel("Амплитуда")
+        # plt.legend()
+        # plt.grid(True)
 
-        # Сохраняем в байтовый буфер вместо файла
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        plt.close() # Важно закрыть график, чтобы не копился в памяти
+        # # Сохраняем в байтовый буфер вместо файла
+        # buf = io.BytesIO()
+        # plt.savefig(buf, format='png')
+        # buf.seek(0)
+        # plt.close() # Важно закрыть график, чтобы не копился в памяти
 
-        # 6. Отправляем картинку пользователю
-        return StreamingResponse(buf, media_type="image/png")
+        # # 6. Отправляем картинку пользователю
+        # return StreamingResponse(buf, media_type="image/png")
+    
+        time_labels = np.arange(len(signal_raw)).tolist()
+        
+        chart_data = {
+            "title": metadata.get('Title', 'Без названия'),
+            "labels": time_labels, # Ось X
+            "datasets": [
+                {
+                    "label": "После subtract_reference",
+                    "data": signal_raw.tolist(),
+                    "borderColor": "rgba(255, 0, 255, 0.4)", # Цвет 'm' (magenta)
+                    "borderWidth": 1,
+                    "fill": False
+                },
+                {
+                    "label": "После msbackadj (Итог)",
+                    "data": signal_corrected.tolist(),
+                    "borderColor": "rgba(0, 128, 0, 1)", # Цвет 'g' (green)
+                    "borderWidth": 2,
+                    "fill": False
+                }
+            ]
+        }
+
+        # 6. Отправляем словарь (FastAPI автоматически конвертирует его в JSON)
+        return chart_data
 
     except Exception as e:
         # Если что-то пошло не так (например, нет колонки dR110)
@@ -85,8 +122,13 @@ def home():
         "version": _version_,
         "docs": "/docs"
     }
+@app.get("/")
+async def read_index():
+    return FileResponse('static/index.html')
 
+# 4. Монтируем папку static для доступа к другим файлам (если будут стили или скрипты)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 if __name__ == "__main__":
     import uvicorn
     # Запуск сервера на порту 8000
-    uvicorn.run(app, host="180.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
