@@ -33,7 +33,7 @@ jobs:
         run: |
           python - << 'EOF'
           import version
-          print("Version:", version.__version__)
+          print("Version:", version._version_)
           EOF
 
       # ---- build ----
