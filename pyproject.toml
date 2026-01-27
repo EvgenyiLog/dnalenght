@@ -28,7 +28,10 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["dnalenght"]
+where = ["."]
+include = ["dnalenght*"]
+exclude = ["files*", "vendor*", "tests*", "*test*"]
+
 
 
 
