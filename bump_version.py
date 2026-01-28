@@ -5,6 +5,9 @@ import argparse
 import re
 from datetime import date
 from pathlib import Path
+import subprocess
+import sys
+import datetime
 
 
 VERSION_RE = re.compile(r'^_version_\s*=\s*["\']([^"\']+)["\']', re.M)
@@ -49,6 +52,7 @@ def update_version_file(
 
     print(f"✔ version: {old_version} → {new_version}")
     print(f"✔ release date: {today}")
+    return new_version
 
 
 def main() -> None:
@@ -66,6 +70,8 @@ def main() -> None:
     g.add_argument("--minor", action="store_true", help="Bump minor version")
     g.add_argument("--major", action="store_true", help="Bump major version")
     g.add_argument("--set-version", metavar="X.Y.Z", help="Set exact version")
+    g.add_argument("--tag",action="store_true",help="Create and push annotated Git tag after version bump")
+    
 
     args = p.parse_args()
 
@@ -76,11 +82,37 @@ def main() -> None:
         None
     )
 
-    update_version_file(
+    new_ver=update_version_file(
         args.file,
         new_version=args.set_version,
         bump_part=bump_part,
     )
+
+    # === НОВЫЙ БЛОК: создание тега ===
+    if args.tag:
+      
+
+        tag_name = f"v{new_ver}"
+        commit_msg = f"chore: release {new_ver}"
+        tag_msg = f"Release {new_ver} ({datetime.date.today().isoformat()})"
+
+        try:
+            # Фиксируем изменения
+            subprocess.run(["git", "commit", "-am", commit_msg], check=True, capture_output=True)
+            print(f"✔ committed: {commit_msg}")
+
+            # Создаём аннотированный тег
+            subprocess.run(["git", "tag", "-a", tag_name, "-m", tag_msg], check=True, capture_output=True)
+            print(f"✔ tag created: {tag_name}")
+
+            # Отправляем
+            subprocess.run(["git", "push"], check=True, capture_output=True)
+            subprocess.run(["git", "push", "origin", tag_name], check=True, capture_output=True)
+            print(f"✔ tag pushed: {tag_name}")
+
+        except subprocess.CalledProcessError as e:
+            print(f"✘ git error ({e.cmd[0]}): {e.stderr.decode().strip() or e.stdout.decode().strip()}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
