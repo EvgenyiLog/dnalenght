@@ -18,13 +18,13 @@ def main():
     # print(metadata.keys())
     print(metadata.get('Title'))
     print(channels_df.columns)
-    plt.figure() 
+    plt.figure('Raw') 
     channels_df.loc[:,'dR110'].plot(color='b')
     plt.grid(True)
 
 
     df=subtract_reference_from_columns(channels_df,50)
-    plt.figure() 
+    plt.figure('Вычитание первых 50') 
     df.loc[:,'dR110'].plot(color='m')
     plt.grid(True)
 
@@ -38,7 +38,7 @@ def main():
 
     # добавляем в тот же DataFrame
     df['dR110_corr'] = signal_corrected
-    plt.figure() 
+    plt.figure('msbackadj') 
     df.loc[:,'dR110'].plot(color='g')
     plt.grid(True)
 
