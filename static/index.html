@@ -1,213 +1,264 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRF Processor</title>
-    <!-- Chart.js загружается локально -->
+    <title>FRF DNA Analyzer</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #333;
+            --border: #ddd;
+            --accent: #007bff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #18191a;
+            --card: #242526;
+            --text: #e4e6eb;
+            --border: #3e4042;
+            --accent: #2d88ff;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 30px auto;
-            background: #f5f5f5;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             padding: 20px;
+            transition: 0.3s;
         }
+
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            margin: auto;
+            background: var(--card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .btn {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            font-size: 16px;
+
+        .theme-btn {
             cursor: pointer;
-            display: block;
-            margin: 0 auto 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
         }
-        .btn:hover {
-            background: #0056b3;
+
+        .folder-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        #fileInput {
-            display: none;
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
         }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        .file-browser {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
         .file-list {
-            max-height: 300px;
+            height: 250px;
             overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 20px 0;
-            border-radius: 5px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
         }
+
         .file-item {
-            padding: 10px;
+            padding: 8px 12px;
             cursor: pointer;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            transition: 0.2s;
         }
-        .file-item:last-child {
-            border-bottom: none;
-        }
+
         .file-item:hover {
-            background: #f0f0f0;
+            background: rgba(0, 123, 255, 0.1);
         }
+
         .file-item.active {
-            background: #007bff;
+            background: var(--accent);
             color: white;
         }
-        canvas {
-            width: 100% !important;
-            height: 500px !important;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+
+        .charts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        #status {
+
+        .canvas-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: none;
         }
-        #status.error {
-            background: #ffebee;
-            color: #c62828;
-            display: block;
-        }
-        #status.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            display: block;
+
+        h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
     </style>
 </head>
+
 <body>
+
     <div class="container">
-        <h1>🧬 FRF Processor</h1>
-        
-        <input type="file" id="fileInput" webkitdirectory directory multiple>
-        <button class="btn" onclick="document.getElementById('fileInput').click()">
-            📁 Выбрать файлы или папку
-        </button>
-        
-        <div id="status"></div>
-        
-        <div class="file-list" id="fileList">
-            <div style="text-align:center; color:#999; padding:20px;">
-                Выберите файлы для отображения списка
-            </div>
+        <div class="header">
+            <h1>🧬 Signal Processor</h1>
+            <button class="theme-btn" onclick="toggleTheme()">🌙 / ☀️ Тема</button>
         </div>
-        
-        <canvas id="myChart"></canvas>
+
+        <div class="folder-input">
+            <input type="text" id="pathInput" placeholder="Введите полный путь к папке (например, C:\Data\Samples)">
+            <button onclick="scanFolder()"
+                style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">Сканировать</button>
+        </div>
+
+        <div class="main-layout">
+            <aside class="file-browser">
+                <div>
+                    <h3>⭐ Keyword Files (Ref)</h3>
+                    <div id="listKeyword" class="file-list"></div>
+                </div>
+                <div>
+                    <h3>Documents</h3>
+                    <div id="listOther" class="file-list"></div>
+                </div>
+            </aside>
+
+            <main class="charts-section">
+                <div class="canvas-container">
+                    <canvas id="chartRaw"></canvas>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="chartCorr"></canvas>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
-        let chart = null;
-        
-        function showStatus(msg, type) {
-            const el = document.getElementById('status');
-            el.textContent = msg;
-            el.className = type;
-            el.style.display = 'block';
+        let chartRaw, chartCorr;
+        let currentFolderPath = "";
+
+        function toggleTheme() {
+            const doc = document.documentElement;
+            const next = doc.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            doc.setAttribute('data-theme', next);
+            if (chartRaw) updateChartsTheme(next);
         }
-        
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            const frfFiles = files.filter(f => f.name.toLowerCase().endsWith('.frf'));
-            
-            if (frfFiles.length === 0) {
-                showStatus('⚠️ Не найдено файлов .frf', 'error');
-                return;
-            }
-            
-            renderFileList(frfFiles);
-            showStatus(`✅ Найдено ${frfFiles.length} файлов`, 'success');
-        });
-        
-        function renderFileList(files) {
-            const list = document.getElementById('fileList');
-            list.innerHTML = '';
-            
-            files.forEach(file => {
-                const div = document.createElement('div');
-                div.className = 'file-item';
-                div.innerHTML = `
-                    <strong>${file.name}</strong>
-                    <div style="font-size:12px; color:#666;">${(file.size/1024).toFixed(1)} KB</div>
-                `;
-                div.onclick = () => {
+
+        async function scanFolder() {
+            const path = document.getElementById('pathInput').value;
+            if (!path) return;
+
+            const fd = new FormData();
+            fd.append('folder_path', path);
+
+            const res = await fetch('/scan-folder/', { method: 'POST', body: fd });
+            const data = await res.json();
+
+            currentFolderPath = data.folder;
+            renderUIList('listKeyword', data.keyword_files);
+            renderUIList('listOther', data.other_files);
+        }
+
+        function renderUIList(id, files) {
+            const el = document.getElementById(id);
+            el.innerHTML = files.length ? '' : '<div style="padding:10px; color:#888;">Нет файлов</div>';
+            files.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+                item.textContent = name;
+                item.onclick = () => {
                     document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
-                    div.classList.add('active');
-                    processFile(file);
+                    item.classList.add('active');
+                    loadFileData(name);
                 };
-                list.appendChild(div);
+                el.appendChild(item);
             });
         }
-        
-        async function processFile(file) {
-            showStatus(`⏳ Обработка ${file.name}...`, 'success');
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            try {
-                const response = await fetch('/process-frf/', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json().catch(() => ({}));
-                    throw new Error(error.detail || `Ошибка ${response.status}`);
-                }
-                
-                const data = await response.json();
-                renderChart(data);
-                showStatus(`✅ ${file.name}`, 'success');
-                
-            } catch (err) {
-                console.error('Ошибка:', err);
-                showStatus(`❌ ${err.message}`, 'error');
-            }
+
+        async function loadFileData(fileName) {
+            const fullPath = `${currentFolderPath}\\${fileName}`;
+            const fd = new FormData();
+            fd.append('full_path', fullPath);
+
+            const res = await fetch('/process-by-path/', { method: 'POST', body: fd });
+            const data = await res.json();
+            drawCharts(data);
         }
-        
-        function renderChart(data) {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if (chart) chart.destroy();
-            
-            chart = new Chart(ctx, {
+
+        function drawCharts(data) {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? '#333' : '#eee';
+
+            const config = (label, points, color) => ({
                 type: 'line',
-                data: {  // ← ИСПРАВЛЕНО: добавлено "data:"
-                    labels: data.labels || [],
-                    datasets: data.datasets || []
+                data: {
+                    labels: data.labels,
+                    datasets: [{ label, data: points, borderColor: color, borderWidth: 1.5, pointRadius: 0, fill: false }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        title: { 
-                            display: true, 
-                            text: data.title || 'FRF Сигнал',
-                            font: { size: 18 }
-                        },
-                        legend: { position: 'top' }
-                    },
                     scales: {
-                        x: { title: { display: true, text: 'Отсчеты' } },
-                        y: { title: { display: true, text: 'Амплитуда' } }
-                    }
+                        x: { grid: { color: gridColor } },
+                        y: { grid: { color: gridColor } }
+                    },
+                    plugins: { title: { display: true, text: data.title } }
                 }
+            });
+
+            if (chartRaw) chartRaw.destroy();
+            if (chartCorr) chartCorr.destroy();
+
+            chartRaw = new Chart(document.getElementById('chartRaw'), config('Raw Signal', data.raw, '#ff6384'));
+            chartCorr = new Chart(document.getElementById('chartCorr'), config('Corrected Signal', data.corrected, '#4bc0c0'));
+        }
+
+        function updateChartsTheme(theme) {
+            const color = theme === 'dark' ? '#333' : '#eee';
+            [chartRaw, chartCorr].forEach(c => {
+                c.options.scales.x.grid.color = color;
+                c.options.scales.y.grid.color = color;
+                c.update();
             });
         }
     </script>
 </body>
+
 </html>
