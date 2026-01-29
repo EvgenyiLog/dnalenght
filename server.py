@@ -38,77 +38,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/process-frf/", summary="Загрузить .frf и получить график")
-async def process_frf(file: UploadFile = File(...)):
-    # 1. Проверяем расширение
-    if not file.filename.endswith('.frf'):
-        raise HTTPException(status_code=400, detail="Файл должен быть формата .frf")
-
-    # Формируем путь для временного файла
-    # temp_path = f"temp_{file.filename}"
-    temp_path = os.path.join(
-        os.environ.get('TEMP', tempfile.gettempdir()),
-        f"frf_{os.urandom(4).hex()}_{file.filename}"
-    )
+@app.post("/process-by-path/")
+async def process_by_path(full_path: str = Form(...)):
+    if not os.path.exists(full_path):
+        raise HTTPException(status_code=404, detail="Файл не найден")
 
     try:
-        # 2. Сохраняем загруженные байты в реальный файл
-        content = await file.read()
-        with open(temp_path, "wb") as f:
-            f.write(content)
-
-        # 3. Вызываем ваш парсер (теперь он видит файл по пути temp_path)
-        # Мы берем вторую попытку из вашего кода, где данные перезаписывались
-        matrix_df, channels_df, metadata = parse_frf_file(temp_path)
+        # Прямое открытие без копирования во временную папку
+        matrix_df, channels_df, metadata = parse_frf_file(full_path)
         
-        # 4. Обработка сигнала (ваша логика)
-        # Вычитание референса
         df_processed = subtract_reference_from_columns(channels_df, 50)
-        
-        # Коррекция базовой линии
-        time = np.arange(len(df_processed))
         signal_raw = df_processed['dR110'].values
+        time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
-        
-        # Добавляем коррекцию в DataFrame (как в вашем исходнике)
-        df_processed['dR110_corr'] = signal_corrected
 
-       
-    
-        time_labels = np.arange(len(signal_raw)).tolist()
-        
-        chart_data = {
-            "title": metadata.get('Title', 'Без названия'),
-            "labels": time_labels, # Ось X
-            "datasets": [
-                {
-                    "label": "После subtract_reference",
-                    "data": signal_raw.tolist(),
-                    "borderColor": "rgba(255, 0, 255, 0.4)", # Цвет 'm' (magenta)
-                    "borderWidth": 1,
-                    "fill": False
-                },
-                {
-                    "label": "После msbackadj (Итог)",
-                    "data": signal_corrected.tolist(),
-                    "borderColor": "rgba(0, 128, 0, 1)", # Цвет 'g' (green)
-                    "borderWidth": 2,
-                    "fill": False
-                }
-            ]
+        return {
+            "title": metadata.get('Title', os.path.basename(full_path)),
+            "labels": time.tolist(),
+            "raw": signal_raw.tolist(),
+            "corrected": signal_corrected.tolist()
         }
-
-        # 6. Отправляем словарь (FastAPI автоматически конвертирует его в JSON)
-        return chart_data
-
     except Exception as e:
-        # Если что-то пошло не так (например, нет колонки dR110)
-        raise HTTPException(status_code=500, detail=f"Ошибка обработки: {str(e)}")
-    
-    finally:
-        # 7. ГАРАНТИРОВАННО удаляем временный файл
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/scan-folder/", summary="Сканировать папку и вернуть список файлов")
 async def scan_folder(folder_path: str = Form(...)):
