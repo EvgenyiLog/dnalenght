@@ -134,17 +134,18 @@
 </head>
 
 <body>
-
     <div class="container">
         <div class="header">
             <h1>🧬 Signal Processor</h1>
-            <button class="theme-btn" onclick="toggleTheme()">🌙 / ☀️ Тема</button>
+            <button class="theme-btn">🌙 / ☀️ Тема</button>
         </div>
 
         <div class="folder-input">
             <input type="text" id="pathInput" placeholder="Введите полный путь к папке (например, C:\Data\Samples)">
-            <button onclick="scanFolder()"
-                style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">Сканировать</button>
+            <button class="scan-btn"
+                style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">
+                Сканировать
+            </button>
         </div>
 
         <div class="main-layout">
@@ -172,52 +173,66 @@
 
     <script>
         let chartRaw, chartCorr;
-        let currentFolderPath = "";
+        let pathMap = {};
 
-        function toggleTheme() {
+        // Тема
+        document.querySelector('.theme-btn').addEventListener('click', () => {
             const doc = document.documentElement;
             const next = doc.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             doc.setAttribute('data-theme', next);
             if (chartRaw) updateChartsTheme(next);
-        }
+        });
 
-        async function scanFolder() {
-            const path = document.getElementById('pathInput').value;
-            if (!path) return;
+        // Сканирование папки
+        document.querySelector('.scan-btn').addEventListener('click', async () => {
+            const folder = document.getElementById('pathInput').value;
+            if (!folder) return;
 
             const fd = new FormData();
-            fd.append('folder_path', path);
+            fd.append('folder_path', folder);
 
             const res = await fetch('/scan-folder/', { method: 'POST', body: fd });
             const data = await res.json();
 
-            currentFolderPath = data.folder;
+            pathMap = {};
+            data.path_keyword_files.forEach(p => pathMap[getFileName(p)] = p);
+            data.path_other_files.forEach(p => pathMap[getFileName(p)] = p);
+
             renderUIList('listKeyword', data.keyword_files);
             renderUIList('listOther', data.other_files);
+        });
+
+        function getFileName(path) {
+            return path.split("\\").pop().split("/").pop();
         }
 
         function renderUIList(id, files) {
             const el = document.getElementById(id);
             el.innerHTML = files.length ? '' : '<div style="padding:10px; color:#888;">Нет файлов</div>';
+
             files.forEach(name => {
                 const item = document.createElement('div');
                 item.className = 'file-item';
                 item.textContent = name;
-                item.onclick = () => {
+                item.addEventListener('click', () => {
                     document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-                    loadFileData(name);
-                };
+                    loadFileData(pathMap[name]);
+                });
                 el.appendChild(item);
             });
         }
 
-        async function loadFileData(fileName) {
-            const fullPath = `${currentFolderPath}\\${fileName}`;
+        async function loadFileData(fullPath) {
+            if (!fullPath) return;
             const fd = new FormData();
             fd.append('full_path', fullPath);
 
             const res = await fetch('/process-by-path/', { method: 'POST', body: fd });
+            if (!res.ok) {
+                alert("Файл не найден или ошибка сервера");
+                return;
+            }
             const data = await res.json();
             drawCharts(data);
         }

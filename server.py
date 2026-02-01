@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form 
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse,JSONResponse
+from convert_numpy_types import convert_numpy_types
+from find_numpy_types import find_numpy_types
 
+from typing import Any, Union, Dict, List
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -40,6 +43,10 @@ app.add_middleware(
 
 @app.post("/process-by-path/")
 async def process_by_path(full_path: str = Form(...)):
+    print("RAW full_path:", repr(full_path))
+
+    
+
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="Файл не найден")
 
@@ -134,6 +141,9 @@ async def process_by_path(full_path: str = Form(...)):
 #         if os.path.exists(temp_path):
 #             os.remove(temp_path)
 
+
+
+
 @app.post("/scan-folder/", summary="Сканировать папку и вернуть список файлов")
 async def scan_folder(folder_path: str = Form(...)):
     """
@@ -152,16 +162,24 @@ async def scan_folder(folder_path: str = Form(...)):
     keyword_paths, other_paths = extract_paths_from_categorize(keyword_files, other_files)
     path_keyword_files = reveal_paths(keyword_paths)
     path_other_files = reveal_paths(other_paths)
+    print(path_other_files)
    
     
-    return {
+    result= {
         "folder": folder_path,
         "keyword_files": keyword_files,
         "other_files": other_files,
-        'path_keyword_files':path_keyword_files,
-        'path_other_files': path_other_files,
-        "total_count": len(all_frf)
+        "path_keyword_files":path_keyword_files,
+        "path_other_files": path_other_files,
+        
     }
+    print("\n=== DEBUG: Searching for numpy types ===")
+    find_numpy_types(result)
+    print("=========================================\n")
+
+
+
+    return JSONResponse(content=convert_numpy_types(result))
 
 @app.get("/api/info")
 def info():
