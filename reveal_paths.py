@@ -26,28 +26,29 @@ def extract_paths_from_categorize(frf_type_files: List[Dict[str, Any]],
 
 def reveal_paths(raw_paths: List[Union[str, Path, Dict]]) -> List[str]:
     """
-    Универсальная версия: работает с list[str], list[Path], list[dict].
+    Возвращает пути с прямыми слешами (универсально для всех ОС).
     """
     all_paths = []
     
     for item in raw_paths:
         if isinstance(item, dict):
-            # Извлекаем 'path' из словаря (categorize_frf_files)
             path_str = str(item.get('path', item.get('file_path', '')))
         elif isinstance(item, (str, Path)):
             path_str = str(item)
         else:
             path_str = str(item)
         
-        # Проверяем FRF и существование
         path = Path(path_str.strip())
         if path.suffix.lower() == '.frf' and path.exists():
             full_path = path.absolute()
-            all_paths.append(str(full_path))
-            print(f"✅ {full_path}")
+            
+            # Заменяем обратные слеши на прямые
+            normalized_path = str(full_path).replace('\\', '/')
+            all_paths.append(normalized_path)
+            
+            print(f"✅ {normalized_path}")
     
     return sorted(list(set(all_paths)))
-
 
 
 
