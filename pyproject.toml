@@ -28,24 +28,14 @@ dev = [
 ]
 
 [tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
 where = ["."]
 include = ["dnalenght*"]
-exclude = ["files*", "vendor*", "tests*", "*test*"]
-
-
-
-
-[tool.uv.sources]
-
-
-[tool.uv.extra-build-dependencies]
-pyyawt = ["importlib-metadata>=4.0", "typing-extensions"]
-
-
-[tool.setuptools.find]
 exclude = [
     "files*",
-    "vendor*", 
+    "vendor*",
     "test*",
     "tests*",
     "doc*",
@@ -56,4 +46,7 @@ exclude = [
     "*.egg-info*"
 ]
 
+[tool.uv.sources]
 
+[tool.uv.extra-build-dependencies]
+pyyawt = ["importlib-metadata>=4.0", "typing-extensions"]
