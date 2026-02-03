@@ -1,5 +1,7 @@
+MANIFEST.in
 README.md
 pyproject.toml
+setup.cfg
 server.egg-info/PKG-INFO
 server.egg-info/SOURCES.txt
 server.egg-info/dependency_links.txt

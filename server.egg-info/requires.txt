@@ -2,10 +2,9 @@ fastapi[standard-no-fastapi-cloud-cli]>=0.116.1
 matplotlib>=3.10.8
 numpy>=2.3.2
 pandas>=2.3.3
-pybaselines>=1.2.1
+pybaselines[full]>=1.2.1
 pydantic>=2.11.7
 pywavelets>=1.9.0
-pyyawt
 scipy>=1.16.1
 sqlmodel>=0.0.24
 uvicorn>=0.35.0
