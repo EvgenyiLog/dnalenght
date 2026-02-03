@@ -66,6 +66,7 @@ jobs:
       shell: pwsh
       
     - name: Show remaining errors
+      continue-on-error: true
       run: |
         Write-Host "=== Remaining errors ==="
         flake8 . || exit 0
