@@ -1,0 +1,29 @@
+.\categorize_frf_files.py:220:9: E722 do not use bare 'except'
+.\categorize_frf_files.py:294:1: W391 blank line at end of file
+.\example.py:24:5: F841 local variable 'path_keyword_files' is assigned to but never used
+.\example.py:25:5: F841 local variable 'path_other_files' is assigned to but never used
+.\example.py:67:5: E303 too many blank lines (2)
+.\example.py:72:5: E303 too many blank lines (2)
+.\example.py:84:13: E231 missing whitespace after ','
+.\example.py:91:13: E231 missing whitespace after ','
+.\example.py:95:5: E303 too many blank lines (2)
+.\example.py:107:5: E303 too many blank lines (4)
+.\process_frf_files.py:33:5: F841 local variable 'time' is assigned to but never used
+.\readerfrf.py:73:21: E123 closing bracket does not match indentation of opening bracket's line
+.\reveal_paths.py:3:1: F811 redefinition of unused 'Path' from line 1
+.\reveal_paths.py:4:1: F811 redefinition of unused 'List' from line 2
+.\server.py:107:9: E303 too many blank lines (2)
+.\server.py:111:35: E261 at least two spaces before inline comment
+.\server.py:116:61: E261 at least two spaces before inline comment
+.\server.py:123:57: E261 at least two spaces before inline comment
+.\server.py:145:1: E303 too many blank lines (4)
+.\server.py:156:5: F841 local variable 'all_frf' is assigned to but never used
+.\server.py:159:31: E225 missing whitespace around operator
+.\server.py:166:5: E303 too many blank lines (2)
+.\server.py:166:11: E225 missing whitespace around operator
+.\server.py:170:29: E231 missing whitespace after ':'
+.\server.py:180:5: E303 too many blank lines (3)
+.\server.py:182:1: E302 expected 2 blank lines, found 1
+.\server.py:190:1: E302 expected 2 blank lines, found 1
+.\server.py:194:1: E302 expected 2 blank lines, found 1
+.\server.py:198:1: E302 expected 2 blank lines, found 1
