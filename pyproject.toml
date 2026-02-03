@@ -25,6 +25,8 @@ dev = [
     "pre-commit",
     "pyinstaller>=6.16.0",
     "pywebview>=6.0",
+    "ruff>=0.14.14",
+    "ty>=0.0.14",
 ]
 
 [tool.setuptools]
