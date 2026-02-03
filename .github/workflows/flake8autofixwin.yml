@@ -27,29 +27,42 @@ jobs:
       run: |
         flake8  > errorsflake8.txt 2>&1
       shell: pwsh
+
+    
         
     - name: Attempt to auto-fix errors (PowerShell)
+      if: always()
+      continue-on-error: true
       run: |
-        if (-not (Test-Path errorsflake8.txt)) {
-          Write-Host "No errors file found"
-          exit 0
-        }
-        
-        Get-Content errorsflake8.txt | ForEach-Object {
-          if ($_ -match '^([^:]+):(\d+):\d+:\s+([A-Z]\d+)\s+') {
-            $filename = $matches[1]
-            $linenumber = $matches[2]
-            $code = $matches[3]
-            
-            # Пропускаем неисправимые ошибки
-            if ($code -in @("F401", "F841", "W293", "W291", "E226", "E501", "E722")) {
-              return
-            }
-            
-            Write-Host "Fixing $filename:$linenumber [$code]..."
-            autopep8 --in-place --line-range $linenumber $linenumber --select $code $filename 2>$null
+          if (-not (Test-Path errorsflake8.txt)) {
+          Write-Host "❌ errorsflake8.txt not found"
+          exit 1
           }
-        }
+    
+          $fixedCount = 0
+          $skippedCount = 0
+    
+          Get-Content errorsflake8.txt | ForEach-Object {
+          if ($_ -match '^([^:]+):(\d+):\d+:\s+([A-Z]\d+)\s+') {
+          $filename = $matches[1]
+          $linenumber = $matches[2]
+          $code = $matches[3]
+        
+          # Пропускаем ошибки, которые autopep8 НЕ исправляет
+          $unfixable = @("F401", "F841", "W293", "W291", "E226", "E501", "E722", "E123", "F811")
+          if ($code -in $unfixable) {
+          $skippedCount++
+          return
+          }
+        
+          # ✅ Исправлено: подвыражение ${} для корректной интерполяции
+          Write-Host "🔧 Fixing ${filename}:${linenumber} [$code]..."
+        
+          autopep8 --in-place --line-range $linenumber $linenumber --select $code $filename 2>$null
+          $fixedCount++
+          }
+          }
+    
       shell: pwsh
       
     - name: Show remaining errors
