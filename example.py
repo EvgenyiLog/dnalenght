@@ -69,8 +69,14 @@ def main():
     corrected_modpoly = y - baseline_modpoly
     
 
-    baseline_psalsa, params = baseline_fitter.psalsa(y, 1e5, k=0.05)
+    baseline_psalsa, _ = baseline_fitter.psalsa(y, 1e5, k=0.05)
     corrected_psalsa = y - baseline_psalsa
+    baseline_fitter = Baseline(x, check_finite=False)
+    baseline_std, _ = baseline_fitter.std_distribution(y, half_window=200, num_std=np.std(y))
+    corrected_std = y - baseline_std
+  
+    baseline_beads, _ = baseline_fitter.beads(y, freq_cutoff=0.002, lam_0=3, lam_1=0.05, lam_2=0.2, asymmetry=3)
+    corrected_beads = y - baseline_beads
     df['dR110'] = corrected_psalsa
     plt.figure('Correct baseline psalsa')
     df.loc[:, 'dR110'].plot(color='k')
@@ -88,6 +94,16 @@ def main():
     df['dR110'] = corrected_iarpls  # или corrected_aspls / corrected_modpoly
 
     plt.figure('Correct baseline iarpls') 
+    df.loc[:,'dR110'].plot(color='k')
+    plt.grid(True)
+
+    df['dR110'] = corrected_std
+    plt.figure('Correct baseline std') 
+    df.loc[:,'dR110'].plot(color='k')
+    plt.grid(True)
+
+    df['dR110'] = corrected_beads
+    plt.figure('Correct baseline beads') 
     df.loc[:,'dR110'].plot(color='k')
     plt.grid(True)
 
