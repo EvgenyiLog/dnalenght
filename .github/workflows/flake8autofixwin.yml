@@ -24,8 +24,7 @@ jobs:
         
     - name: Run flake8 and save output
       run: |
-        flake8 . > errorsflake8.txt 2>&1 || exit 0
-        type errorsflake8.txt || echo "No errors found"
+        flake8 --config .flake8 > errorsflake8.txt
         
     - name: Attempt to auto-fix errors (PowerShell)
       run: |
