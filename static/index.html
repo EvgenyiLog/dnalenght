@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>FRF DNA Analyzer</title>
     
-    <script src="/static/js/chart.umd.js"></script>
+    <script src="/static/js/chart.umd.js" defer></script>
     <style>
         :root {
             --bg: #f0f2f5;
@@ -143,8 +143,7 @@
 
         <div class="folder-input">
             <input type="text" id="pathInput" placeholder="Введите полный путь к папке (например, C:\Data\Samples)">
-            <button class="scan-btn"
-                style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">
+            <button class="scan-btn" style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">
                 Сканировать
             </button>
         </div>
@@ -176,6 +175,11 @@
         let chartRaw, chartCorr;
         let pathMap = {};
 
+        // Извлечение имени файла из пути
+        function getFileName(path) {
+            return path.split("\\").pop().split("/").pop();
+        }
+
         // Тема
         document.querySelector('.theme-btn').addEventListener('click', () => {
             const doc = document.documentElement;
@@ -187,38 +191,66 @@
         // Сканирование папки
         document.querySelector('.scan-btn').addEventListener('click', async () => {
             const folder = document.getElementById('pathInput').value;
-            if (!folder) return;
+            if (!folder) {
+                alert('Введите путь к папке');
+                return;
+            }
 
             const fd = new FormData();
             fd.append('folder_path', folder);
 
-            const res = await fetch('/scan-folder/', { method: 'POST', body: fd });
-            const data = await res.json();
+            try {
+                const res = await fetch('/scan-folder/', { method: 'POST', body: fd });
+                
+                // Проверяем тип ответа
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    console.error('Получен неожиданный ответ (не JSON):', text.substring(0, 500));
+                    alert('Ошибка сервера: получен неожиданный формат ответа');
+                    return;
+                }
 
-            pathMap = {};
-            data.path_keyword_files.forEach(p => pathMap[getFileName(p)] = p);
-            data.path_other_files.forEach(p => pathMap[getFileName(p)] = p);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert(`Ошибка сервера (${res.status}): ${errorData.detail || 'Неизвестная ошибка'}`);
+                    return;
+                }
 
-            renderUIList('listKeyword', data.keyword_files);
-            renderUIList('listOther', data.other_files);
+                const data = await res.json();
+                console.log('Данные от сервера:', data);
+
+                pathMap = {};
+                data.path_keyword_files.forEach(p => pathMap[getFileName(p)] = p);
+                data.path_other_files.forEach(p => pathMap[getFileName(p)] = p);
+
+                renderUIList('listKeyword', data.keyword_files);
+                renderUIList('listOther', data.other_files);
+            } catch (error) {
+                console.error('Ошибка при сканировании:', error);
+                alert('Ошибка при сканировании папки. Проверьте консоль браузера (F12).');
+            }
         });
-
-        function getFileName(path) {
-            return path.split("\\").pop().split("/").pop();
-        }
 
         function renderUIList(id, files) {
             const el = document.getElementById(id);
             el.innerHTML = files.length ? '' : '<div style="padding:10px; color:#888;">Нет файлов</div>';
 
-            files.forEach(name => {
+            files.forEach(fileObj => {
                 const item = document.createElement('div');
                 item.className = 'file-item';
-                item.textContent = name;
+                
+                // Извлекаем имя файла из объекта
+                const displayName = fileObj.title || fileObj.path || JSON.stringify(fileObj);
+                item.textContent = displayName;
+                
                 item.addEventListener('click', () => {
                     document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
                     item.classList.add('active');
-                    loadFileData(pathMap[name]);
+                    
+                    // Получаем полный путь из объекта или из карты путей
+                    const fullPath = fileObj.path || pathMap[displayName];
+                    loadFileData(fullPath);
                 });
                 el.appendChild(item);
             });
@@ -229,13 +261,29 @@
             const fd = new FormData();
             fd.append('full_path', fullPath);
 
-            const res = await fetch('/process-by-path/', { method: 'POST', body: fd });
-            if (!res.ok) {
-                alert("Файл не найден или ошибка сервера");
-                return;
+            try {
+                const res = await fetch('/process-by-path/', { method: 'POST', body: fd });
+                
+                const contentType = res.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await res.text();
+                    console.error('Получен неожиданный ответ:', text);
+                    alert("Файл не найден или ошибка сервера");
+                    return;
+                }
+                
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert(`Ошибка: ${errorData.detail || 'Файл не найден'}`);
+                    return;
+                }
+                
+                const data = await res.json();
+                drawCharts(data);
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error);
+                alert('Произошла ошибка при загрузке файла');
             }
-            const data = await res.json();
-            drawCharts(data);
         }
 
         function drawCharts(data) {
@@ -269,12 +317,14 @@
         function updateChartsTheme(theme) {
             const color = theme === 'dark' ? '#333' : '#eee';
             [chartRaw, chartCorr].forEach(c => {
-                c.options.scales.x.grid.color = color;
-                c.options.scales.y.grid.color = color;
-                c.update();
+                if (c) {
+                    c.options.scales.x.grid.color = color;
+                    c.options.scales.y.grid.color = color;
+                    c.update();
+                }
             });
         }
-    </script>
+</script>
 </body>
 
 </html>
