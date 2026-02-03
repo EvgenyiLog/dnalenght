@@ -1,6 +1,6 @@
 [project]
 name = "server"
-version = "0.1.0"
+version = "0.0.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -27,6 +27,13 @@ dev = [
     "pywebview>=6.0",
     "ruff>=0.14.14",
     "ty>=0.0.14",
+]
+docs = [
+    "furo>=2025.12.19",
+    "myst-parser>=5.0.0",
+    "numpydoc>=1.10.0",
+    "pdoc>=16.0.0",
+    "sphinx>=9.1.0",
 ]
 
 [tool.setuptools]
