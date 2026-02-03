@@ -4,7 +4,7 @@ from scipy.signal import savgol_filter, find_peaks, peak_widths
 from pybaselines import Baseline
 from typing import Tuple, Dict, Optional, Union, List
 import numpy.typing as npt
-from analyze_single_spectrum import analyze_single_spectrum
+from .analyze_single_spectrum import analyze_single_spectrum
 
 
 def analyze_peaks(df_processed: pd.DataFrame,

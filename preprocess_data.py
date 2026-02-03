@@ -4,8 +4,8 @@ from scipy.signal import savgol_filter, find_peaks, peak_widths
 from pybaselines import Baseline
 from typing import Tuple, Dict, Optional, Union, List
 import numpy.typing as npt
-from subtract_reference_from_columns import subtract_reference_from_columns
-from msbackadj import msbackadj
+from .subtract_reference_from_columns import subtract_reference_from_columns
+from .msbackadj import msbackadj
 
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:

@@ -4,8 +4,8 @@ from scipy.signal import savgol_filter, find_peaks, peak_widths
 from pybaselines import Baseline
 from typing import Tuple, Dict, Optional, Union, List
 import numpy.typing as npt
-from select_top_peaks import select_top_peaks
-from score_peaks import score_peaks
+from .select_top_peaks import select_top_peaks
+from .score_peaks import score_peaks
 
 
 def analyze_single_spectrum(data: npt.NDArray[np.float64],

@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 from pybaselines import Baseline
 from scipy.signal import savgol_filter
-from pyyawt import wden  # pip install PyWavelets или pyyawt
+# from pyyawt import wden  # pip install PyWavelets или pyyawt
 from typing import Tuple, Dict, Optional, Union
 import numpy.typing as npt
-from subtract_reference_from_columns import subtract_reference_from_columns
-from msbackadj import msbackadj
+from .subtract_reference_from_columns import subtract_reference_from_columns
+from .msbackadj import msbackadj
 
 
 def process_frf_files(keyword_files: list[str],
@@ -46,13 +46,13 @@ def process_frf_files(keyword_files: list[str],
             signal_corrected = np.maximum(signal - baseline, 0)
 
             # 2. Вейвлет-денойзинг (pyyawt.wden эквивалент)
-            signal_denoised, CXD, LXD = wden(
-                signal_corrected, 'sqtwolog', 's', 'sln', 1, 'sym2')
+            # signal_denoised, CXD, LXD = wden(
+            #     signal_corrected, 'sqtwolog', 's', 'sln', 1, 'sym2')
 
-            print(f"Длина после денойзинга: {len(signal_denoised)}")
+            # print(f"Длина после денойзинга: {len(signal_denoised)}")
 
-            # Добавляем обработанную колонку
-            df[f'{col_name}_corr'] = signal_denoised
+            # # Добавляем обработанную колонку
+            # df[f'{col_name}_corr'] = signal_denoised
 
     return df
 

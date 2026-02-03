@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any, Union
 import glob
 
-from readerfrf import parse_frf_file
+from .readerfrf import parse_frf_file
 
 
 # ======================================================================
