@@ -24,8 +24,7 @@ jobs:
         
     - name: Run flake8 and save output
       run: |
-            flake8 . > errorsflake8.txt 2>&1
-            exit 0
+            flake8 . > errorsflake8.txt 
       shell: pwsh
         
         
