@@ -24,7 +24,7 @@ jobs:
         
     - name: Run flake8 and save output
       run: |
-        flake8 --config .flake8 > errorsflake8.txt
+        flake8  > errorsflake8.txt
         
     - name: Attempt to auto-fix errors (PowerShell)
       run: |
