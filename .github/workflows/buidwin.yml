@@ -1,0 +1,44 @@
+name: Build Python Wheel windows
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - "v*"
+  pull_request:
+
+jobs:
+  build-wheel:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ---- UV ----
+      - name: Install uv
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv
+
+      - name: Sync dependencies
+        run: uv sync --all-extras --dev
+
+      # ---- sanity ----
+      - name: Show version
+        run: python -c "import version; print('Version:', version._version_)"
+
+      # ---- build ----
+      - name: Build wheel
+        run: uv build
+
+      # ---- artifacts ----
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheel
+          path: "dist/*.whl"
