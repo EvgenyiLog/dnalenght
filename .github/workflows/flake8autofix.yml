@@ -1,0 +1,60 @@
+name: Flake8 with Auto-fix Attempt (Linux)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install flake8 autopep8
+        
+    - name: Run flake8 and save output
+      run: |
+        flake8 . > errorsflake8.txt 2>&1 || true
+        cat errorsflake8.txt || echo "No errors found"
+        
+    - name: Attempt to auto-fix errors (bash)
+      run: |
+        #!/bin/bash
+        if [[ ! -f errorsflake8.txt ]]; then
+          echo "No errors file found"
+          exit 0
+        fi
+        
+        while IFS= read -r line; do
+          if [[ $line =~ ^([^:]+):([0-9]+):[0-9]+:[[:space:]]+([A-Z][0-9]+)[[:space:]] ]]; then
+            filename="${BASH_REMATCH[1]}"
+            linenumber="${BASH_REMATCH[2]}"
+            code="${BASH_REMATCH[3]}"
+            
+            # Пропускаем ошибки, которые autopep8 НЕ исправляет
+            case "$code" in
+              F401|F841|W293|W291|E226|E501|E722)
+                continue
+                ;;
+            esac
+            
+            echo "Fixing $filename:$linenumber [$code]..."
+            autopep8 --in-place --line-range "$linenumber" "$linenumber" --select "$code" "$filename" 2>/dev/null || true
+          fi
+        done < errorsflake8.txt
+      shell: bash
+      
+    - name: Show remaining errors
+      run: |
+        echo "=== Remaining errors ==="
+        flake8 . || true

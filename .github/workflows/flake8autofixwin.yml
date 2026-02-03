@@ -1,0 +1,57 @@
+name: Flake8 with Auto-fix Attempt (Windows)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  flake8:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install flake8 autopep8
+        
+    - name: Run flake8 and save output
+      run: |
+        flake8 . > errorsflake8.txt 2>&1 || exit 0
+        type errorsflake8.txt || echo "No errors found"
+        
+    - name: Attempt to auto-fix errors (PowerShell)
+      run: |
+        if (-not (Test-Path errorsflake8.txt)) {
+          Write-Host "No errors file found"
+          exit 0
+        }
+        
+        Get-Content errorsflake8.txt | ForEach-Object {
+          if ($_ -match '^([^:]+):(\d+):\d+:\s+([A-Z]\d+)\s+') {
+            $filename = $matches[1]
+            $linenumber = $matches[2]
+            $code = $matches[3]
+            
+            # Пропускаем неисправимые ошибки
+            if ($code -in @("F401", "F841", "W293", "W291", "E226", "E501", "E722")) {
+              return
+            }
+            
+            Write-Host "Fixing $filename:$linenumber [$code]..."
+            autopep8 --in-place --line-range $linenumber $linenumber --select $code $filename 2>$null
+          }
+        }
+      shell: pwsh
+      
+    - name: Show remaining errors
+      run: |
+        Write-Host "=== Remaining errors ==="
+        flake8 . || exit 0

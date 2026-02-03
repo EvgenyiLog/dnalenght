@@ -4,13 +4,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
+
 def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
     """
     Парсит FRF-файл (XML-формат) с обработкой пропущенных значений
     """
     with open(file_path, 'r', encoding='utf-8') as f:
         xml_content = f.read()
-    
+
     root = ET.fromstring(xml_content)
 
     # 1. Обработка матрицы с заменой ошибок
@@ -23,8 +24,9 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             except (ValueError, TypeError):
                 row.append(0.0)
         matrix.append(row)
-    
-    matrix_columns = [f'matrix_col_{i}' for i in range(len(matrix[0]))] if matrix else []
+
+    matrix_columns = [f'matrix_col_{i}' for i in range(
+        len(matrix[0]))] if matrix else []
     matrix_df = pd.DataFrame(matrix, columns=matrix_columns).fillna(0)
 
     # 2. Обработка данных каналов с валидацией
@@ -66,9 +68,9 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             curves = []
             for arr in elem.findall('.//ArrayOfDouble'):
                 curve = [
-                   float(d.text) for d in arr.findall('double')
-                   if d.text
-                   ]
+                    float(d.text) for d in arr.findall('double')
+                    if d.text
+                    ]
                 if curve:
                     curves.append(curve)
 
@@ -83,7 +85,7 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             content = elem.text.strip()
         elif len(elem) > 0:
             content = {
-                child.tag: child.text.strip() 
+                child.tag: child.text.strip()
                 for child in elem 
                 if child.text and child.text.strip()
             }

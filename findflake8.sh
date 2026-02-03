@@ -1,0 +1,3 @@
+#!/bin/bash
+
+flake8 --config=.flake8 > errorsflake8.txt

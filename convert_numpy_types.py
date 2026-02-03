@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import Any
 
+
 def convert_numpy_types(obj: Any) -> Any:
     if isinstance(obj, dict):
         return {k: convert_numpy_types(v) for k, v in obj.items()}

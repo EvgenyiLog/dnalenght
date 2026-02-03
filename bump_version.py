@@ -11,7 +11,7 @@ import datetime
 
 
 VERSION_RE = re.compile(r'^_version_\s*=\s*["\']([^"\']+)["\']', re.M)
-DATE_RE    = re.compile(r'^_release_date_\s*=\s*["\']([^"\']+)["\']', re.M)
+DATE_RE = re.compile(r'^_release_date_\s*=\s*["\']([^"\']+)["\']', re.M)
 
 
 def bump(version: str, part: str) -> str:
@@ -70,8 +70,8 @@ def main() -> None:
     g.add_argument("--minor", action="store_true", help="Bump minor version")
     g.add_argument("--major", action="store_true", help="Bump major version")
     g.add_argument("--set-version", metavar="X.Y.Z", help="Set exact version")
-    g.add_argument("--tag",action="store_true",help="Create and push annotated Git tag after version bump")
-    
+    g.add_argument("--tag", action="store_true",
+                   help="Create and push annotated Git tag after version bump")
 
     args = p.parse_args()
 
@@ -82,7 +82,7 @@ def main() -> None:
         None
     )
 
-    new_ver=update_version_file(
+    new_ver = update_version_file(
         args.file,
         new_version=args.set_version,
         bump_part=bump_part,
@@ -90,7 +90,6 @@ def main() -> None:
 
     # === НОВЫЙ БЛОК: создание тега ===
     if args.tag:
-      
 
         tag_name = f"v{new_ver}"
         commit_msg = f"chore: release {new_ver}"

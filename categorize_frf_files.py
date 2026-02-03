@@ -4,6 +4,7 @@ from readerfrf import parse_frf_file
 import os
 import glob
 
+
 def categorize_frf_files(
     input_path: Union[str, Path, List[Union[str, Path]]],
     target_type: str = "Sample"
@@ -48,30 +49,32 @@ def categorize_frf_files(
     >>> # Можно искать другие типы
     >>> ladder_files, other_files = categorize_frf_files_by_type("path", target_type="Ladder")
     """
-    
+
     def _collect_file_paths(path_input: Union[str, Path, List[Union[str, Path]]]) -> List[Path]:
         """Внутренняя функция для сбора всех FRF файлов из различных входных типов"""
         file_paths = []
-        
+
         if isinstance(path_input, (str, Path)):
             path = Path(path_input)
-            
+
             if not path.exists():
                 raise ValueError(f"Путь не существует: {path}")
-            
+
             if path.is_file() and path.suffix.lower() == '.frf':
                 file_paths = [path]
             elif path.is_dir():
                 # Рекурсивный поиск всех .frf файлов
-                file_paths = [Path(f) for f in glob.glob(str(path / "**" / "*.frf"), recursive=True)]
+                file_paths = [Path(f) for f in glob.glob(
+                    str(path / "**" / "*.frf"), recursive=True)]
             else:
                 raise TypeError(f"Неподдерживаемый тип пути: {path}")
-                
+
         elif isinstance(path_input, list):
             for item in path_input:
                 item_path = Path(item)
                 if not item_path.exists():
-                    print(f"Предупреждение: путь не существует, пропускаем: {item_path}")
+                    print(
+                        f"Предупреждение: путь не существует, пропускаем: {item_path}")
                     continue
                 if item_path.suffix.lower() == '.frf':
                     file_paths.append(item_path)
@@ -248,11 +251,14 @@ def categorize_frf_files_by_title(
     pass
 
 # --- алиас MATLAB-логики ---
+
+
 def categorize_frf_files_by_type(
     input_path: Union[str, Path, List[Union[str, Path]]],
     target_type: str = "Sample"
 ):
     return categorize_frf_files(input_path, target_type)
+
 
 # Пример использования с MATLAB-логикой:
 if __name__ == "__main__":

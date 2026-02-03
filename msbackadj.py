@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d, PchipInterpolator
 from typing import Union, Optional, Callable
 
+
 def msbackadj(
-    X: np.ndarray, 
-    Y: np.ndarray, 
+    X: np.ndarray,
+    Y: np.ndarray,
     step_size: Union[int, float, Callable] = 40,
     window_size: Union[int, float, Callable] = 140,
     regression_method: str = 'pchip',
@@ -31,11 +32,13 @@ def msbackadj(
     Returns:
         np.ndarray: Скорректированные данные Y (такой же размерности, как входные).
     """
-    
+
     # Приводим к 2D (сигналы в колонках)
-    if Y.ndim == 1: Y = Y[:, np.newaxis]
-    if X.ndim == 1: X = X[:, np.newaxis]
-    
+    if Y.ndim == 1:
+        Y = Y[:, np.newaxis]
+    if X.ndim == 1:
+        X = X[:, np.newaxis]
+
     num_samples, num_signals = Y.shape
     multiple_X = X.shape[1] > 1
     Y_out = np.zeros_like(Y, dtype=float)
@@ -47,16 +50,17 @@ def msbackadj(
     for ns in range(num_signals):
         curr_X = X[:, ns] if multiple_X else X[:, 0]
         curr_Y = Y[:, ns]
-        
+
         # 1. Определение положений окон
         xp_list = []
         curr_p = max(0, curr_X[0])
         limit_X = curr_X[-1]
-        
+
         while curr_p <= limit_X:
             xp_list.append(curr_p)
             curr_p += get_step(curr_p)
-            if len(xp_list) > 1000: break # Предохранитель
+            if len(xp_list) > 1000:
+                break  # Предохранитель
             
         xp = np.array(xp_list)
         xw = np.array([get_window(p) for p in xp])
@@ -72,7 +76,7 @@ def msbackadj(
             if subw.size > 0:
                 if estimation_method == 'quantile':
                     we[nw] = np.quantile(subw, quantile_value)
-                else: # 'mean' или аналог
+                else:  # 'mean' или аналог
                     we[nw] = np.mean(subw)
             else:
                 we[nw] = we[nw-1] if nw > 0 else np.min(curr_Y)
@@ -102,6 +106,7 @@ def msbackadj(
             Y_out[:, ns] = curr_Y - baseline
 
     return Y_out.squeeze()
+
 
 def _plot_results(x, y, baseline, pts_x, pts_y, idx):
     """Вспомогательная функция для отрисовки."""

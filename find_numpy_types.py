@@ -4,8 +4,7 @@ import pandas as pd
 from typing import Any
 
 
-
-def find_numpy_types(obj:Any, path="root"):
+def find_numpy_types(obj: Any, path="root"):
     """Рекурсивно ищет numpy типы в структуре данных"""
     if isinstance(obj, dict):
         for k, v in obj.items():

@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Union
 
+
 def subtract_column_min(df: pd.DataFrame) -> pd.DataFrame:
     """Вычитает минимальное значение каждой колонки из всех значений этой колонки.
 
@@ -38,6 +39,7 @@ def subtract_column_min(df: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Все колонки должны быть числовыми.")
 
     return df - df.min(numeric_only=True)
+
 
 def subtract_percentile_norm(df: pd.DataFrame, q: float = 1.0) -> pd.DataFrame:
     """Вычитает заданный перцентиль по каждой колонке."""

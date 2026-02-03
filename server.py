@@ -3,10 +3,10 @@ import io
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form 
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse,JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from convert_numpy_types import convert_numpy_types
 from find_numpy_types import find_numpy_types
 
@@ -24,7 +24,7 @@ from subtract_reference_from_columns import subtract_reference_from_columns
 from msbackadj import msbackadj
 from categorize_frf_files import categorize_frf_files
 
-from reveal_paths import reveal_paths,extract_paths_from_categorize
+from reveal_paths import reveal_paths, extract_paths_from_categorize
 
 import tempfile
 
@@ -41,11 +41,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/process-by-path/")
 async def process_by_path(full_path: str = Form(...)):
     print("RAW full_path:", repr(full_path))
-
-    
 
     if not os.path.exists(full_path):
         raise HTTPException(status_code=404, detail="Файл не найден")
@@ -104,8 +103,7 @@ async def process_frf(file: UploadFile = File(...)):
         # Добавляем коррекцию в DataFrame (как в вашем исходнике)
         df_processed['dR110_corr'] = signal_corrected
 
-       
-    
+
         time_labels = np.arange(len(signal_raw)).tolist()
         
         chart_data = {
@@ -163,7 +161,7 @@ async def scan_folder(folder_path: str = Form(...)):
     path_keyword_files = reveal_paths(keyword_paths)
     path_other_files = reveal_paths(other_paths)
     print(path_other_files)
-   
+
     
     result= {
         "folder": folder_path,

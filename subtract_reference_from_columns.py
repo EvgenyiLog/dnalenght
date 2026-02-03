@@ -61,7 +61,8 @@ def subtract_reference_from_columns(
         raise ValueError("Parameter 'n' must be >= 1.")
 
     if method == "percentile" and percentile is None:
-        raise ValueError("Parameter 'percentile' must be specified when method='percentile'.")
+        raise ValueError(
+            "Parameter 'percentile' must be specified when method='percentile'.")
 
     if not all(pd.api.types.is_numeric_dtype(df[col]) for col in df.columns):
         raise TypeError("All columns must be numeric.")

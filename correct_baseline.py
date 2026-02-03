@@ -7,7 +7,8 @@ from pybaselines import Baseline
 def correct_baseline(
     data: Union[pd.Series, np.ndarray, pd.DataFrame],
     column: Optional[str] = None,
-    method: Literal['iarpls', 'aspls', 'modpoly', 'psalsa', 'airpls', 'iasls'] = 'iarpls',
+    method: Literal['iarpls', 'aspls', 'modpoly',
+                    'psalsa', 'airpls', 'iasls'] = 'iarpls',
     lam: float = 1e6,
     **kwargs
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -67,19 +68,20 @@ def correct_baseline(
         y = data.astype(float)
     else:
         raise TypeError("data должен быть pd.Series, np.ndarray или pd.DataFrame")
-    
+
     # Валидация сигнала
     if y.ndim != 1:
         raise ValueError(f"Ожидался одномерный сигнал, получено измерение: {y.ndim}")
     if len(y) < 10:
-        raise ValueError("Сигнал слишком короткий для коррекции базовой линии (< 10 точек)")
-    
+        raise ValueError(
+            "Сигнал слишком короткий для коррекции базовой линии (< 10 точек)")
+
     # Ось x (линейная шкала индексов)
     x = np.arange(len(y), dtype=float)
-    
+
     # Инициализация корректора
     baseline_fitter = Baseline(x_data=x)
-    
+
     # Выбор и применение метода
     method_lower = method.lower()
     if method_lower == 'iarpls':
@@ -87,7 +89,8 @@ def correct_baseline(
     elif method_lower == 'aspls':
         baseline, _ = baseline_fitter.aspls(y, lam=lam, **kwargs)
     elif method_lower == 'modpoly':
-        baseline, _ = baseline_fitter.modpoly(y, poly_order=kwargs.get('poly_order', 2), **kwargs)
+        baseline, _ = baseline_fitter.modpoly(
+            y, poly_order=kwargs.get('poly_order', 2), **kwargs)
     elif method_lower == 'psalsa':
         baseline, _ = baseline_fitter.psalsa(y, lam=lam, **kwargs)
     elif method_lower == 'airpls':

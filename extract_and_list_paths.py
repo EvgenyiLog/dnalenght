@@ -3,6 +3,7 @@ import pandas as pd
 import zipfile
 import tarfile
 
+
 def extract_and_list_paths(file_path: str) -> list[str]:
     """
     Распаковывает архив и выводит все пути файлов внутри.
@@ -14,7 +15,7 @@ def extract_and_list_paths(file_path: str) -> list[str]:
         список всех путей внутри архива
     """
     all_paths = []
-    
+
     # Если это ZIP архив
     if zipfile.is_zipfile(file_path):
         print(f"🔓 Распаковка ZIP: {file_path}")
@@ -24,7 +25,7 @@ def extract_and_list_paths(file_path: str) -> list[str]:
                 all_paths.append(path)
                 print(f"  📄 {path}")
             zip_ref.extractall("extracted_files")
-    
+
     # Если это TAR/TGZ архив
     elif tarfile.is_tarfile(file_path):
         print(f"🔓 Распаковка TAR: {file_path}")
@@ -33,22 +34,20 @@ def extract_and_list_paths(file_path: str) -> list[str]:
                 all_paths.append(member.name)
                 print(f"  📄 {member.name}")
             tar_ref.extractall("extracted_files")
-    
+
     # Если это текстовый файл с путями (paste.txt)
     else:
         print(f"📝 Читаем пути из TXT: {file_path}")
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-            
+
         # Ищем все пути Windows/Linux формата
         import re
         paths = re.findall(r'[A-Za-z]:[\\\/][^"\n\r]+|/[^\s"\n\r]+', content)
-        
+
         for path in paths:
             all_paths.append(path)
             print(f"  📄 {path}")
-    
+
     print(f"\n✅ Всего найдено путей: {len(all_paths)}")
     return all_paths
-
-

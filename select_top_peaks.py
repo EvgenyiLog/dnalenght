@@ -11,7 +11,7 @@ def select_top_peaks(peaks: npt.NDArray[np.intp], scores: npt.NDArray[np.float64
     max_score = np.max(scores_round)
     top_mask = scores_round == max_score
     top_peaks = peaks[top_mask]
-    
+
     if len(top_peaks) >= 2:
         return np.sort(top_peaks)[[0, -1]]  # первый и последний
     return top_peaks
