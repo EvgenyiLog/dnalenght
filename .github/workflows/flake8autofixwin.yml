@@ -23,8 +23,10 @@ jobs:
         pip install flake8 autopep8
         
     - name: Run flake8 and save output
+      continue-on-error: true
       run: |
-        flake8  > errorsflake8.txt
+        flake8  > errorsflake8.txt 2>&1
+      shell: pwsh
         
     - name: Attempt to auto-fix errors (PowerShell)
       run: |
