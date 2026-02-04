@@ -79,21 +79,27 @@ async def process_by_path(full_path: str = Form(...)):
         raise HTTPException(status_code=404, detail="Файл не найден")
 
     try:
-        # Прямое открытие без копирования во временную папку
         matrix_df, channels_df, metadata = parse_frf_file(full_path)
-        
         df_processed = subtract_reference_from_columns(channels_df, 50)
         signal_raw = df_processed['dR110'].values
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
 
-        return {
+        result = {
             "title": metadata.get('Title', os.path.basename(full_path)),
             "labels": time.tolist(),
             "raw": signal_raw.tolist(),
             "corrected": signal_corrected.tolist()
         }
+        print("✅ Ответ сервера (первые 5 точек):", {
+            "title": result["title"],
+            "labels_len": len(result["labels"]),
+            "raw_len": len(result["raw"]),
+            "corrected_len": len(result["corrected"])
+        })
+        return result
     except Exception as e:
+        print("❌ Ошибка обработки:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/process-frf/", summary="Загрузить .frf и получить график")

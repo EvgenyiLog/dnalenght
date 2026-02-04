@@ -115,14 +115,7 @@
             gap: 20px;
         }
 
-        .canvas-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-        }
+        
 
         h3 {
             margin-top: 0;
@@ -131,6 +124,17 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        .canvas-container {
+        position: relative;
+        height: 350px;
+        width: 100%;
+        max-width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        overflow-x: auto;
+        box-sizing: border-box;
+       }
     </style>
 </head>
 
@@ -256,6 +260,9 @@
             });
         }
 
+
+       
+
         async function loadFileData(fullPath) {
             if (!fullPath) return;
             const fd = new FormData();
@@ -289,6 +296,11 @@
         function drawCharts(data) {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const gridColor = isDark ? '#333' : '#eee';
+            const textColor = isDark ? '#e4e6eb' : '#333';
+            // Ограничиваем количество меток на оси X (макс. 15)
+            const maxTicks = 15;
+            const step = Math.max(1, Math.floor(data.labels.length / maxTicks));
+            const limitedLabels = data.labels.filter((_, i) => i % step === 0);
 
             const config = (label, points, color) => ({
                 type: 'line',
@@ -300,7 +312,15 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { grid: { color: gridColor } },
+                        x: { grid: { color: gridColor } ,
+                            ticks: {
+                                maxTicksLimit: maxTicks,
+                                color: textColor,
+                                autoSkip: true,
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        },
                         y: { grid: { color: gridColor } }
                     },
                     plugins: { title: { display: true, text: data.title } }

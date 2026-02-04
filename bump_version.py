@@ -29,7 +29,7 @@ def update_version_file(
     path: Path,
     new_version: str | None,
     bump_part: str | None,
-) -> None:
+    ) -> None:
     text = path.read_text(encoding="utf-8")
 
     m = VERSION_RE.search(text)
@@ -70,8 +70,12 @@ def main() -> None:
     g.add_argument("--minor", action="store_true", help="Bump minor version")
     g.add_argument("--major", action="store_true", help="Bump major version")
     g.add_argument("--set-version", metavar="X.Y.Z", help="Set exact version")
-    g.add_argument("--tag", action="store_true",
-                   help="Create and push annotated Git tag after version bump")
+    p.add_argument(
+        "--tag",
+        action="store_true",
+        help="Create annotated Git tag after version bump",
+    )
+    
 
     args = p.parse_args()
 
