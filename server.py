@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import Any, Union, Dict, List
 import tempfile
+from pybaselines import Baseline
 
 # Импорт версии
 from version import _version_
@@ -84,6 +85,33 @@ async def process_by_path(full_path: str = Form(...)):
         signal_raw = df_processed['dR110'].values
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
+        x = np.arange(len(df_processed))  # или реальная ось (время/длина волны), если есть
+        
+       
+
+        # Инициализация корректора базовой линии
+        baseline_fitter = Baseline(x_data=x)
+
+        # Метод 1: iARPLS (рекомендуется для большинства случаев — асимметричный, устойчивый к шуму)
+        baseline_iarpls, _ = baseline_fitter.iarpls(signal_corrected, 1e7)
+        signal_corrected =  signal_corrected - baseline_iarpls
+
+        # Метод 2: aspls (альтернатива, хорошо работает при сильном шуме)
+        baseline_aspls, _ = baseline_fitter.aspls(signal_corrected, lam=1e5)
+        signal_corrected =  signal_corrected - baseline_aspls
+   
+
+        # Метод 3: modpoly (полиномиальная аппроксимация, если фон гладкий)
+        baseline_modpoly, _ = baseline_fitter.modpoly(signal_corrected, poly_order=1)
+        signal_corrected =  signal_corrected - baseline_modpoly
+    
+
+        baseline_psalsa, _ = baseline_fitter.psalsa(signal_corrected, 1e5, k=0.05)
+        signal_corrected =  signal_corrected - baseline_psalsa
+        baseline_fitter = Baseline(x, check_finite=False)
+        baseline_beads, _ = baseline_fitter.beads(signal_corrected, freq_cutoff=0.002, lam_0=3, lam_1=0.05, lam_2=0.2, asymmetry=3)
+        signal_corrected = signal_corrected - baseline_beads
+
 
         result = {
             "title": metadata.get('Title', os.path.basename(full_path)),

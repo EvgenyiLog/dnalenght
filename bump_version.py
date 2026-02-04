@@ -3,11 +3,10 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from datetime import date
 from pathlib import Path
 import subprocess
-import sys
-import datetime
 
 
 VERSION_RE = re.compile(r'^_version_\s*=\s*["\']([^"\']+)["\']', re.M)
@@ -29,7 +28,8 @@ def update_version_file(
     path: Path,
     new_version: str | None,
     bump_part: str | None,
-    ) -> None:
+) -> str:
+    """Update version.py and return new version string."""
     text = path.read_text(encoding="utf-8")
 
     m = VERSION_RE.search(text)
@@ -55,6 +55,54 @@ def update_version_file(
     return new_version
 
 
+def update_changelog(
+    path: Path,
+    version: str,
+    today: str,
+    section: str | None = None,
+    message: str | None = None,
+) -> None:
+    """Add entry to CHANGELOG.md in Keep a Changelog format."""
+    # Create minimal changelog if missing
+    if not path.exists():
+        path.write_text(
+            "# Changelog\n\n"
+            "All notable changes to this project will be documented in this file.\n\n"
+            "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).\n\n"
+        )
+        print(f"✔ created {path.name}")
+
+    content = path.read_text(encoding="utf-8")
+
+    # Build entry
+    entry_lines = [f"## [{version}] - {today}\n"]
+    if message and section:
+        entry_lines.extend([f"### {section}", f"- {message}", "\n"])
+    elif message:
+        entry_lines.extend([f"- {message}", "\n"])
+    else:
+        entry_lines.append("\n")
+
+    entry = "\n".join(entry_lines)
+
+    # Insert after first # Changelog header (case-insensitive)
+    header_match = re.search(r'^(# Changelog|# Change Log|# CHANGELOG)\s*\n', content, re.IGNORECASE | re.MULTILINE)
+    if header_match:
+        # Find end of header block (first double newline after header)
+        insert_pos = header_match.end()
+        # Skip description paragraph(s) until we hit a ## header or end of meaningful content
+        desc_end = re.search(r'\n\s*\n(?=\s*##\s|\s*$)', content[insert_pos:], re.MULTILINE)
+        if desc_end:
+            insert_pos += desc_end.end()
+        content = content[:insert_pos] + entry + content[insert_pos:]
+    else:
+        # Prepend to file
+        content = entry + content
+
+    path.write_text(content, encoding="utf-8")
+    print(f"✔ updated {path.name}: [{version}] {today}")
+
+
 def main() -> None:
     p = argparse.ArgumentParser(
         description="Update _version_ and _release_date_ in version.py"
@@ -70,12 +118,48 @@ def main() -> None:
     g.add_argument("--minor", action="store_true", help="Bump minor version")
     g.add_argument("--major", action="store_true", help="Bump major version")
     g.add_argument("--set-version", metavar="X.Y.Z", help="Set exact version")
+
+    # Git integration
     p.add_argument(
         "--tag",
         action="store_true",
-        help="Create annotated Git tag after version bump",
+        help="Create annotated Git tag and commit after version bump",
     )
-    
+    p.add_argument(
+        "--commit-msg",
+        metavar="TEXT",
+        help="Custom commit message (default: 'chore: release X.Y.Z')",
+    )
+    p.add_argument(
+        "--tag-msg",
+        metavar="TEXT",
+        help="Custom tag annotation message (default: 'Release X.Y.Z (YYYY-MM-DD)')",
+    )
+
+    # Changelog
+    p.add_argument(
+        "--changelog",
+        type=Path,
+        metavar="FILE",
+        default=Path("CHANGELOG.md"),
+        help="Path to changelog file (default: CHANGELOG.md)",
+    )
+    p.add_argument(
+        "--create-changelog",
+        action="store_true",
+        help="Create changelog file if it doesn't exist",
+    )
+    p.add_argument(
+        "--changelog-section",
+        choices=["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"],
+        default="Changed",
+        help="Section for changelog entry (default: Changed)",
+    )
+    p.add_argument(
+        "--changelog-msg",
+        metavar="TEXT",
+        help="Message for changelog entry (optional)",
+    )
 
     args = p.parse_args()
 
@@ -92,29 +176,48 @@ def main() -> None:
         bump_part=bump_part,
     )
 
-    # === НОВЫЙ БЛОК: создание тега ===
-    if args.tag:
+    today = date.today().isoformat()
 
+    # Update changelog if requested
+    if args.tag:
+        if args.changelog.exists() or args.create_changelog:
+            update_changelog(
+                args.changelog,
+                version=new_ver,
+                today=today,
+                section=args.changelog_section if args.changelog_msg else None,
+                message=args.changelog_msg,
+            )
+        elif not args.changelog.exists():
+            print(f"ℹ skipping {args.changelog.name} (file not found, use --create-changelog to create)")
+
+    # Create Git tag and commit
+    if args.tag:
         tag_name = f"v{new_ver}"
-        commit_msg = f"chore: release {new_ver}"
-        tag_msg = f"Release {new_ver} ({datetime.date.today().isoformat()})"
+        commit_msg = args.commit_msg or f"chore: release {new_ver}"
+        tag_msg = args.tag_msg or f"Release {new_ver} ({today})"
 
         try:
-            # Фиксируем изменения
-            subprocess.run(["git", "commit", "-am", commit_msg], check=True, capture_output=True)
+            # Stage all changed files (version.py + CHANGELOG.md)
+            subprocess.run(["git", "add", "."], check=True, capture_output=True)
+            # Commit with custom message
+            subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
             print(f"✔ committed: {commit_msg}")
 
-            # Создаём аннотированный тег
+            # Create annotated tag
             subprocess.run(["git", "tag", "-a", tag_name, "-m", tag_msg], check=True, capture_output=True)
             print(f"✔ tag created: {tag_name}")
 
-            # Отправляем
+            # Push changes and tag
             subprocess.run(["git", "push"], check=True, capture_output=True)
             subprocess.run(["git", "push", "origin", tag_name], check=True, capture_output=True)
             print(f"✔ tag pushed: {tag_name}")
 
         except subprocess.CalledProcessError as e:
-            print(f"✘ git error ({e.cmd[0]}): {e.stderr.decode().strip() or e.stdout.decode().strip()}")
+            cmd = e.cmd[0] if e.cmd else "unknown"
+            stderr = e.stderr.decode().strip() if e.stderr else ""
+            stdout = e.stdout.decode().strip() if e.stdout else ""
+            print(f"✘ git error ({cmd}): {stderr or stdout}", file=sys.stderr)
             sys.exit(1)
 
 
