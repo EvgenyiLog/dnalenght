@@ -6,6 +6,8 @@ from subtract_reference_from_columns import subtract_reference_from_columns
 from msbackadj import msbackadj
 from pybaselines import Baseline
 from categorize_frf_files import categorize_frf_files
+from score_peaks import score_peaks_genlib
+from correct_baseline import correct_baseline
 # import pyyawt
 from reveal_paths import reveal_paths, extract_paths_from_categorize
 
@@ -13,8 +15,14 @@ from reveal_paths import reveal_paths, extract_paths_from_categorize
 def main():
     matrix_df, channels_df, metadata = parse_frf_file(
         r"C:\Users\Admin\Documents\GitHub\dnalenght\files\Anton_lib_test_2_17_56_29\0.1-5-0.2_F9.frf")
+    # print(metadata.keys())
     matrix_df, channels_df, metadata = parse_frf_file(
         r"C:\Users\Admin\Downloads\Telegram Desktop\anton_lib_test\Anton_lib_test_2_17_56_29\ladder_A6.frf")
+    # print(metadata.keys())
+    
+    
+    print(metadata.get('Size'))
+    df=score_peaks_genlib(channels_df.loc[:, 'dR110'])
     keyword_files, other_files = categorize_frf_files(
         input_path=r"C:\Users\Admin\Downloads\Telegram Desktop\anton_lib_test")
     keyword_files, other_files = categorize_frf_files(
@@ -23,9 +31,9 @@ def main():
         keyword_files, other_files)
     path_keyword_files = reveal_paths(keyword_paths)
     path_other_files = reveal_paths(other_paths)
-    # print(metadata.keys())
+    
     print(metadata.get('Title'))
-    print(channels_df.columns)
+    # print(channels_df.columns)
     plt.figure('Raw') 
     channels_df.loc[:, 'dR110'].plot(color='b')
     plt.grid(True)
@@ -49,66 +57,26 @@ def main():
     df.loc[:, 'dR110'].plot(color='g')
     plt.grid(True)
 
-    x = np.arange(len(df))  # или реальная ось (время/длина волны), если есть
-    y = df['dR110'].values
-
-    # Инициализация корректора базовой линии
-    baseline_fitter = Baseline(x_data=x)
-
-    # Метод 1: iARPLS (рекомендуется для большинства случаев — асимметричный, устойчивый к шуму)
-    baseline_iarpls, _ = baseline_fitter.iarpls(y, 1e7)
-    corrected_iarpls = y - baseline_iarpls
-
-    # Метод 2: aspls (альтернатива, хорошо работает при сильном шуме)
-    baseline_aspls, _ = baseline_fitter.aspls(y, lam=1e5)
-    corrected_aspls = y - baseline_aspls
-   
-
-    # Метод 3: modpoly (полиномиальная аппроксимация, если фон гладкий)
-    baseline_modpoly, _ = baseline_fitter.modpoly(y, poly_order=1)
-    corrected_modpoly = y - baseline_modpoly
+    corectbaseline,baseline=correct_baseline(df['dR110'].values, method='modpoly',poly_order=1)
+    corectbaseline,baseline=correct_baseline(corectbaseline,   method='psalsa',lam=1e5,k=0.05 )
     
+    corectbaseline,baseline=correct_baseline(corectbaseline,method='beads',freq_cutoff=0.002,asymmetry=3,lam_0=3,lam_1=0.05,lam_2=0.2)
+    corectbaseline,baseline=correct_baseline(corectbaseline, method='iasls',lam=1e6)
+    df['dR110'] =  corectbaseline
+    plt.figure('corect baseline') 
+    df.loc[:, 'dR110'].plot(color='k')
+    plt.grid(True)
 
-    baseline_psalsa, _ = baseline_fitter.psalsa(y, 1e5, k=0.05)
-    corrected_psalsa = y - baseline_psalsa
-    baseline_fitter = Baseline(x, check_finite=False)
-    baseline_std, _ = baseline_fitter.std_distribution(y, half_window=200, num_std=np.std(y))
-    corrected_std = y - baseline_std
+
+
+
+
+
+
+   
   
-    baseline_beads, _ = baseline_fitter.beads(y, freq_cutoff=0.002, lam_0=3, lam_1=0.05, lam_2=0.2, asymmetry=3)
-    corrected_beads = y - baseline_beads
-    df['dR110'] = corrected_psalsa
-    plt.figure('Correct baseline psalsa')
-    df.loc[:, 'dR110'].plot(color='k')
-    plt.grid(True)
-    df['dR110'] = corrected_aspls
-    plt.figure('Correct baseline aspls')
-    df.loc[:, 'dR110'].plot(color='k')
-    plt.grid(True)
-    df['dR110'] = corrected_modpoly
-    plt.figure('Correct baseline modpoly') 
-    df.loc[:,'dR110'].plot(color='k')
-    plt.grid(True)
-
-    # Сохранение лучшего результата в DataFrame
-    df['dR110'] = corrected_iarpls  # или corrected_aspls / corrected_modpoly
-
-    plt.figure('Correct baseline iarpls') 
-    df.loc[:,'dR110'].plot(color='k')
-    plt.grid(True)
-
-    df['dR110'] = corrected_std
-    plt.figure('Correct baseline std') 
-    df.loc[:,'dR110'].plot(color='k')
-    plt.grid(True)
-
-    df['dR110'] = corrected_beads
-    plt.figure('Correct baseline beads') 
-    df.loc[:,'dR110'].plot(color='k')
-    plt.grid(True)
-
-
-    signal = df['dR110'].values
+    
+    
     print(f"Длина исходного сигнала: {len(signal)}")
     # [signal_corrected,CXD,LXD] = pyyawt.wden(signal,'sqtwolog','s','sln',1,'sym2')
     # print(f"Длина результата: {len(signal_corrected)}")
