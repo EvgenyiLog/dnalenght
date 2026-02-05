@@ -11,6 +11,7 @@ import subprocess
 
 VERSION_RE = re.compile(r'^_version_\s*=\s*["\']([^"\']+)["\']', re.M)
 DATE_RE = re.compile(r'^_release_date_\s*=\s*["\']([^"\']+)["\']', re.M)
+PYPROJECT_VERSION_RE = re.compile(r'^\s*version\s*=\s*["\'](\d+\.\d+\.\d+)["\']', re.M)
 
 
 def bump(version: str, part: str) -> str:
@@ -34,7 +35,7 @@ def update_version_file(
 
     m = VERSION_RE.search(text)
     if not m:
-        raise RuntimeError("_version_ not found")
+        raise RuntimeError(f"_version_ not found in {path}")
 
     old_version = m.group(1)
 
@@ -50,9 +51,39 @@ def update_version_file(
 
     path.write_text(text, encoding="utf-8")
 
-    print(f"✔ version: {old_version} → {new_version}")
+    print(f"✔ version.py: {old_version} → {new_version}")
     print(f"✔ release date: {today}")
     return new_version
+
+
+def update_pyproject_version(path: Path, new_version: str) -> None:
+    """Update version field in pyproject.toml (PEP 621 format)."""
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    updated = False
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped.startswith("#") or not stripped:
+            continue
+        
+        m = PYPROJECT_VERSION_RE.match(line)
+        if m:
+            old_version = m.group(1)
+            indent = line[:line.find('version')]
+            quote = '"' if '"' in line else "'"
+            lines[i] = f'{indent}version = {quote}{new_version}{quote}'
+            print(f"✔ pyproject.toml: {old_version} → {new_version}")
+            updated = True
+            break
+
+    if not updated:
+        raise RuntimeError(
+            "version field not found in pyproject.toml. "
+            "Expected format: `version = \"X.Y.Z\"` inside [project] section."
+        )
+
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def update_changelog(
@@ -63,7 +94,6 @@ def update_changelog(
     message: str | None = None,
 ) -> None:
     """Add entry to CHANGELOG.md in Keep a Changelog format."""
-    # Create minimal changelog if missing
     if not path.exists():
         path.write_text(
             "# Changelog\n\n"
@@ -73,8 +103,6 @@ def update_changelog(
         print(f"✔ created {path.name}")
 
     content = path.read_text(encoding="utf-8")
-
-    # Build entry
     entry_lines = [f"## [{version}] - {today}\n"]
     if message and section:
         entry_lines.extend([f"### {section}", f"- {message}", "\n"])
@@ -84,19 +112,15 @@ def update_changelog(
         entry_lines.append("\n")
 
     entry = "\n".join(entry_lines)
-
-    # Insert after first # Changelog header (case-insensitive)
     header_match = re.search(r'^(# Changelog|# Change Log|# CHANGELOG)\s*\n', content, re.IGNORECASE | re.MULTILINE)
+    
     if header_match:
-        # Find end of header block (first double newline after header)
         insert_pos = header_match.end()
-        # Skip description paragraph(s) until we hit a ## header or end of meaningful content
         desc_end = re.search(r'\n\s*\n(?=\s*##\s|\s*$)', content[insert_pos:], re.MULTILINE)
         if desc_end:
             insert_pos += desc_end.end()
         content = content[:insert_pos] + entry + content[insert_pos:]
     else:
-        # Prepend to file
         content = entry + content
 
     path.write_text(content, encoding="utf-8")
@@ -105,7 +129,7 @@ def update_changelog(
 
 def main() -> None:
     p = argparse.ArgumentParser(
-        description="Update _version_ and _release_date_ in version.py"
+        description="Bump version in version.py (+ auto-update pyproject.toml & CHANGELOG.md)"
     )
     p.add_argument(
         "file",
@@ -118,6 +142,34 @@ def main() -> None:
     g.add_argument("--minor", action="store_true", help="Bump minor version")
     g.add_argument("--major", action="store_true", help="Bump major version")
     g.add_argument("--set-version", metavar="X.Y.Z", help="Set exact version")
+
+    # Smart defaults with opt-out
+    p.add_argument(
+        "--no-pyproject",
+        action="store_true",
+        help="Skip updating pyproject.toml (default: update if exists)",
+    )
+    p.add_argument(
+        "--no-changelog",
+        action="store_true",
+        help="Skip updating CHANGELOG.md (default: update on --tag if exists)",
+    )
+    p.add_argument(
+        "--create-changelog",
+        action="store_true",
+        help="Create CHANGELOG.md if it doesn't exist",
+    )
+    p.add_argument(
+        "--changelog-section",
+        choices=["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"],
+        default="Changed",
+        help="Section for changelog entry (default: Changed)",
+    )
+    p.add_argument(
+        "--changelog-msg",
+        metavar="TEXT",
+        help="Message for changelog entry (optional)",
+    )
 
     # Git integration
     p.add_argument(
@@ -136,31 +188,6 @@ def main() -> None:
         help="Custom tag annotation message (default: 'Release X.Y.Z (YYYY-MM-DD)')",
     )
 
-    # Changelog
-    p.add_argument(
-        "--changelog",
-        type=Path,
-        metavar="FILE",
-        default=Path("CHANGELOG.md"),
-        help="Path to changelog file (default: CHANGELOG.md)",
-    )
-    p.add_argument(
-        "--create-changelog",
-        action="store_true",
-        help="Create changelog file if it doesn't exist",
-    )
-    p.add_argument(
-        "--changelog-section",
-        choices=["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"],
-        default="Changed",
-        help="Section for changelog entry (default: Changed)",
-    )
-    p.add_argument(
-        "--changelog-msg",
-        metavar="TEXT",
-        help="Message for changelog entry (optional)",
-    )
-
     args = p.parse_args()
 
     bump_part = (
@@ -170,6 +197,7 @@ def main() -> None:
         None
     )
 
+    # Шаг 1: обновляем версию в version.py
     new_ver = update_version_file(
         args.file,
         new_version=args.set_version,
@@ -178,37 +206,45 @@ def main() -> None:
 
     today = date.today().isoformat()
 
-    # Update changelog if requested
-    if args.tag:
-        if args.changelog.exists() or args.create_changelog:
+    # Шаг 2: обновляем pyproject.toml (по умолчанию, если не отключено и файл существует)
+    pyproject_path = Path("pyproject.toml")
+    if not args.no_pyproject and pyproject_path.exists():
+        update_pyproject_version(pyproject_path, new_ver)
+    elif not args.no_pyproject:
+        print(f"ℹ skipping pyproject.toml (file not found)")
+    else:
+        print(f"ℹ skipping pyproject.toml (--no-pyproject)")
+
+    # Шаг 3: обновляем changelog при --tag (по умолчанию, если не отключено)
+    changelog_path = Path("CHANGELOG.md")
+    if args.tag and not args.no_changelog:
+        if changelog_path.exists() or args.create_changelog:
             update_changelog(
-                args.changelog,
+                changelog_path,
                 version=new_ver,
                 today=today,
                 section=args.changelog_section if args.changelog_msg else None,
                 message=args.changelog_msg,
             )
-        elif not args.changelog.exists():
-            print(f"ℹ skipping {args.changelog.name} (file not found, use --create-changelog to create)")
+        else:
+            print(f"ℹ skipping CHANGELOG.md (file not found, use --create-changelog to create)")
+    elif args.tag and args.no_changelog:
+        print(f"ℹ skipping CHANGELOG.md (--no-changelog)")
 
-    # Create Git tag and commit
+    # Шаг 4: коммит и тег
     if args.tag:
         tag_name = f"v{new_ver}"
         commit_msg = args.commit_msg or f"chore: release {new_ver}"
         tag_msg = args.tag_msg or f"Release {new_ver} ({today})"
 
         try:
-            # Stage all changed files (version.py + CHANGELOG.md)
             subprocess.run(["git", "add", "."], check=True, capture_output=True)
-            # Commit with custom message
             subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
             print(f"✔ committed: {commit_msg}")
 
-            # Create annotated tag
             subprocess.run(["git", "tag", "-a", tag_name, "-m", tag_msg], check=True, capture_output=True)
             print(f"✔ tag created: {tag_name}")
 
-            # Push changes and tag
             subprocess.run(["git", "push"], check=True, capture_output=True)
             subprocess.run(["git", "push", "origin", tag_name], check=True, capture_output=True)
             print(f"✔ tag pushed: {tag_name}")
