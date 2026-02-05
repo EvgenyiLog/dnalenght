@@ -1,42 +1,18 @@
 {
-  "name": "core-vite",
-  "version": "0.1.0",
-  "type": "module",
+  "name": "dnalenght",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "build:app": "tsc && vite build --mode app",
-    "build:gh": "tsc && vite build --mode gh-pages",
-    "deploy:gh": "pnpm build:gh && gh-pages -d dist"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.2",
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@fontsource/roboto": "^5.2.9",
-    "@mui/icons-material": "^7.3.5",
-    "@mui/material": "^7.3.5",
-    "@react-pdf/renderer": "^4.3.1",
-    "@toolpad/core": "^0.16.0",
-    "@types/file-saver": "^2.0.7",
-    "buffer": "^6.0.3",
     "chart.js": "^4.5.1",
-    "chartjs-plugin-annotation": "^3.1.0",
-    "chartjs-plugin-zoom": "^2.2.0",
-    "file-saver": "^2.0.5",
-    "react": "^19.2.0",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.0",
-    "react-router": "^7.10.0"
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "gh-pages": "^6.3.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.6",
-    "vite-plugin-static-copy": "^3.1.4"
-  },
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0"
+  }
 }
