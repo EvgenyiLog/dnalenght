@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>FRF DNA Analyzer</title>
 <script src="/static/js/chart.umd.js"></script>
+<script src="/static/js/html2canvas.min.js"></script>
+<script src="/static/js/jspdf.umd.min.js"></script>
 <style>
 :root {
     --bg: #f0f2f5;
@@ -33,7 +35,7 @@ body {
 }
 .folder-input { display:flex; gap:10px; margin-bottom:20px; align-items:center; }
 
-/* фиксированная ширина для обоих полей */
+/* одинаковая ширина для полей ввода */
 .input-wide {
     width: 90%; /* одинаковая ширина */
     padding:8px;
@@ -61,11 +63,13 @@ button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; colo
 <div class="container">
 <h2>🧬 Signal Processor</h2>
 
+<!-- Ввод папки -->
 <div class="folder-input">
 <input id="pathInput" class="input-wide" placeholder="Введите путь к папке">
 <button class="scan-btn">Сканировать</button>
 </div>
 
+<!-- Ввод имени отчёта и кнопки -->
 <div class="folder-input">
 <input id="reportName" class="input-wide" type="text" placeholder="Имя отчёта PDF">
 <button id="analyzeBtn">Анализ</button>
@@ -202,8 +206,42 @@ document.getElementById("analyzeBtn").onclick=()=>{
     if(selectedTopFile) loadAndDraw(selectedTopFile,"top");
     if(selectedBottomFile) loadAndDraw(selectedBottomFile,"bottom");
 };
-document.getElementById("reportBtn").onclick=()=>{
-    alert("Функция генерации PDF отчёта будет реализована позже");
+
+/* ---------- КНОПКА PDF ---------- */
+document.getElementById("reportBtn").onclick = async () => {
+    const { jsPDF } = window.jspdf;
+    const pdfName = document.getElementById("reportName").value || "report";
+    const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: 'a4'
+    });
+
+    const margin = 20;
+    let y = margin;
+
+    // Массив графиков (можно добавить ещё)
+    const elements = [
+        document.getElementById("chartTop"),
+        document.getElementById("chartBottom")
+    ];
+
+    for (const el of elements) {
+        const canvas = await html2canvas(el);
+        const imgData = canvas.toDataURL("image/png");
+        const pdfWidth = pdf.internal.pageSize.getWidth() - 2*margin;
+        const pdfHeight = 200; // фиксированная высота графика
+        pdf.addImage(imgData, "PNG", margin, y, pdfWidth, pdfHeight);
+        y += pdfHeight + 10;
+    }
+
+    // Таблица
+    const tableCanvas = await html2canvas(document.getElementById("dataTable"));
+    const tableImg = tableCanvas.toDataURL("image/png");
+    const tableHeight = tableCanvas.height * ((pdf.internal.pageSize.getWidth() - 2*margin)/tableCanvas.width);
+    pdf.addImage(tableImg, "PNG", margin, y, pdf.internal.pageSize.getWidth() - 2*margin, tableHeight);
+
+    pdf.save(pdfName + ".pdf");
 };
 
 /* ---------- ТЕМА ---------- */
