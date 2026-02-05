@@ -15,7 +15,7 @@ from score_peaks import score_peaks_genlib
 from correct_baseline import correct_baseline
 
 # Импорт версии
-from version import _version_
+from version import _version_,_release_date_
 
 # Импорт ваших функций (убедитесь, что файлы лежат в этой же папке)
 from readerfrf import parse_frf_file
@@ -28,7 +28,8 @@ from find_numpy_types import find_numpy_types
 
 app = FastAPI(
     title="DNA Length Signal Processor",
-    version=_version_
+    version=_version_,
+    release_date=_release_date_
 )
 
 app.add_middleware(
@@ -132,12 +133,12 @@ async def process_frf(file: UploadFile = File(...)):
         signal_raw = df_processed['dR110'].values
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
-        # corectbaseline,baseline=correct_baseline(signal_corrected, method='modpoly',poly_order=1)
-        # corectbaseline,baseline=correct_baseline(corectbaseline,   method='psalsa',lam=1e5,k=0.05 )
+        corectbaseline,baseline=correct_baseline(signal_corrected, method='modpoly',poly_order=1)
+        corectbaseline,baseline=correct_baseline(corectbaseline,   method='psalsa',lam=1e5,k=0.05 )
     
-        # corectbaseline,baseline=correct_baseline(corectbaseline,method='beads',freq_cutoff=0.002,asymmetry=3,lam_0=3,lam_1=0.05,lam_2=0.2)
-        # corectbaseline,baseline=correct_baseline(corectbaseline, method='iasls',lam=1e6)
-        # signal_corrected=corectbaseline
+        corectbaseline,baseline=correct_baseline(corectbaseline,method='beads',freq_cutoff=0.002,asymmetry=3,lam_0=3,lam_1=0.05,lam_2=0.2)
+        corectbaseline,baseline=correct_baseline(corectbaseline, method='iasls',lam=1e6)
+        signal_corrected=corectbaseline
         
         df_processed['dR110_corr'] = signal_corrected
 
