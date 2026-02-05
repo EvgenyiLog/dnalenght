@@ -1,350 +1,217 @@
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
-
 <head>
-    <meta charset="UTF-8">
-    <title>FRF DNA Analyzer</title>
-    
-    <script src="/static/js/chart.umd.js" defer></script>
-    <style>
-        :root {
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --text: #333;
-            --border: #ddd;
-            --accent: #007bff;
-        }
+<meta charset="UTF-8">
+<title>FRF DNA Analyzer</title>
+<script src="/static/js/chart.umd.js"></script>
+<style>
+:root {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --text: #333;
+    --border: #ccc;
+    --accent: #007bff;
+}
+[data-theme="dark"] {
+    --bg: #18191a;
+    --card: #242526;
+    --text: #e4e6eb;
+    --border: #3e4042;
+    --accent: #2d88ff;
+}
+body {
+    font-family: Segoe UI, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin:0; padding:20px;
+    transition:0.3s;
+}
+.container {
+    max-width:1400px; margin:auto;
+    background: var(--card);
+    padding:20px; border-radius:12px;
+}
+.folder-input { display:flex; gap:10px; margin-bottom:20px; }
+input[type="text"] { flex:1; padding:8px; border-radius:5px; border:1px solid var(--border); }
+button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; color:white; }
+.scan-btn { background: var(--accent); }
+#analyzeBtn { background:#28a745; }
+#reportBtn { background:#6c757d; }
+#themeBtn { background:#ffc107; color:#333; }
 
-        [data-theme="dark"] {
-            --bg: #18191a;
-            --card: #242526;
-            --text: #e4e6eb;
-            --border: #3e4042;
-            --accent: #2d88ff;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
-            transition: 0.3s;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: auto;
-            background: var(--card);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .theme-btn {
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text);
-        }
-
-        .folder-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-        }
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 25px;
-        }
-
-        .file-browser {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .file-list {
-            height: 250px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg);
-        }
-
-        .file-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-            transition: 0.2s;
-        }
-
-        .file-item:hover {
-            background: rgba(0, 123, 255, 0.1);
-        }
-
-        .file-item.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        .charts-section {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        
-
-        h3 {
-            margin-top: 0;
-            font-size: 16px;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .canvas-container {
-        position: relative;
-        height: 350px;
-        width: 100%;
-        max-width: 100%;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 10px;
-        overflow-x: auto;
-        box-sizing: border-box;
-       }
-    </style>
+.main-layout { display:grid; grid-template-columns:350px 1fr; gap:20px; }
+.file-list { height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; }
+.file-item { padding:8px; cursor:pointer; border-bottom:1px solid var(--border); }
+.file-item.active { background: var(--accent); color:white; }
+.canvas-container { height:320px; margin-bottom:20px; }
+#dataTable { width:100%; border-collapse:collapse; margin-top:10px; }
+#dataTable th, #dataTable td { border:1px solid var(--border); padding:5px; text-align:center; font-size:12px; }
+#dataTable th { background: var(--accent); color:white; }
+</style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🧬 Signal Processor</h1>
-            <button class="theme-btn">🌙 / ☀️ Тема</button>
-        </div>
+<div class="container">
+<h2>🧬 Signal Processor</h2>
 
-        <div class="folder-input">
-            <input type="text" id="pathInput" placeholder="Введите полный путь к папке (например, C:\Data\Samples)">
-            <button class="scan-btn" style="padding: 10px 20px; background: var(--accent); color:white; border:none; border-radius:5px; cursor:pointer;">
-                Сканировать
-            </button>
-        </div>
+<div class="folder-input">
+<input id="pathInput" placeholder="Введите путь к папке">
+<button class="scan-btn">Сканировать</button>
+</div>
 
-        <div class="main-layout">
-            <aside class="file-browser">
-                <div>
-                    <h3> Leader</h3>
-                    <div id="listKeyword" class="file-list"></div>
-                </div>
-                <div>
-                    <h3>⭐Genlib (Ref)</h3>
-                    <div id="listOther" class="file-list"></div>
-                </div>
-            </aside>
+<div class="folder-input">
+<input id="reportName" type="text" placeholder="Имя отчёта PDF">
+<button id="analyzeBtn">Анализ</button>
+<button id="reportBtn">Отчёт</button>
+<button id="themeBtn">🌙 / ☀️ Тема</button>
+</div>
 
-            <main class="charts-section">
-                <div class="canvas-container">
-                    <canvas id="chartRaw"></canvas>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="chartCorr"></canvas>
-                </div>
-            </main>
-        </div>
-    </div>
+<div class="main-layout">
+<aside>
+<h3>Leader</h3>
+<div id="listKeyword" class="file-list"></div>
 
-    <script>
-        let chartRaw, chartCorr;
-        let pathMap = {};
+<h3>Genlib (Ref)</h3>
+<div id="listOther" class="file-list"></div>
+</aside>
 
-        // Извлечение имени файла из пути
-        function getFileName(path) {
-            return path.split("\\").pop().split("/").pop();
-        }
+<main>
+<div class="canvas-container">
+<canvas id="chartTop"></canvas>
+</div>
+<div class="canvas-container">
+<canvas id="chartBottom"></canvas>
+</div>
 
-        // Тема
-        document.querySelector('.theme-btn').addEventListener('click', () => {
-            const doc = document.documentElement;
-            const next = doc.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            doc.setAttribute('data-theme', next);
-            if (chartRaw) updateChartsTheme(next);
+<table id="dataTable">
+<thead>
+<tr>
+<th>Index</th>
+<th>Raw</th>
+<th>Corrected</th>
+<th>Файл</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="4" style="color:#888;">Выберите файл для отображения данных</td></tr>
+</tbody>
+</table>
+</main>
+</div>
+</div>
+
+<script>
+let chartTop=null;
+let chartBottom=null;
+let pathMap={};
+let selectedTopFile=null;
+let selectedBottomFile=null;
+
+/* ---------- СКАН ---------- */
+document.querySelector('.scan-btn').onclick = async () => {
+    const fd = new FormData();
+    fd.append("folder_path", pathInput.value);
+    const res = await fetch("/scan-folder/", { method:"POST", body:fd });
+    const data = await res.json();
+
+    pathMap={};
+    [...data.keyword_files, ...data.other_files].forEach(f => pathMap[f.title]=f.path);
+
+    renderUIList("listKeyword", data.keyword_files,"top");
+    renderUIList("listOther", data.other_files,"bottom");
+};
+
+/* ---------- СПИСОК ФАЙЛОВ ---------- */
+function renderUIList(id, files, position){
+    const el=document.getElementById(id);
+    el.innerHTML=files.length? '' : '<div style="padding:10px;color:#888;">Нет файлов</div>';
+
+    files.forEach(fileObj=>{
+        const item=document.createElement('div');
+        item.className='file-item';
+        const displayName=fileObj.title || fileObj.path || JSON.stringify(fileObj);
+        item.textContent=displayName;
+
+        item.addEventListener('click',()=>{
+            el.querySelectorAll('.file-item').forEach(i=>i.classList.remove('active'));
+            item.classList.add('active');
+
+            const fullPath=fileObj.path || pathMap[displayName];
+            if(position==="top"){ selectedTopFile=fullPath; loadAndDraw(fullPath,"top"); }
+            else{ selectedBottomFile=fullPath; loadAndDraw(fullPath,"bottom"); }
         });
+        el.appendChild(item);
+    });
+}
 
-        // Сканирование папки
-        document.querySelector('.scan-btn').addEventListener('click', async () => {
-            const folder = document.getElementById('pathInput').value;
-            if (!folder) {
-                alert('Введите путь к папке');
-                return;
-            }
+/* ---------- ЗАГРУЗКА И ПОСТРОЕНИЕ ГРАФИКА ---------- */
+async function loadAndDraw(fullPath, position){
+    const fd = new FormData();
+    fd.append("full_path", fullPath);
+    const res = await fetch("/process-by-path/", { method:"POST", body:fd });
+    const data = await res.json();
+    drawChart(data, position);
+    fillTable(data, fullPath);
+}
 
-            const fd = new FormData();
-            fd.append('folder_path', folder);
+/* ---------- Функция для построения графика ---------- */
+function drawChart(data, position){
+    const canvas = position==="top"? document.getElementById("chartTop") : document.getElementById("chartBottom");
+    if(position==="top" && chartTop) chartTop.destroy();
+    if(position==="bottom" && chartBottom) chartBottom.destroy();
 
-            try {
-                const res = await fetch('/scan-folder/', { method: 'POST', body: fd });
-                
-                // Проверяем тип ответа
-                const contentType = res.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await res.text();
-                    console.error('Получен неожиданный ответ (не JSON):', text.substring(0, 500));
-                    alert('Ошибка сервера: получен неожиданный формат ответа');
-                    return;
-                }
+    const chart = new Chart(canvas,{
+        type:"line",
+        data:{
+            labels:data.labels,
+            datasets:[
+                {label:"Raw", data:data.raw, borderColor:"#ff6384", pointRadius:0},
+                {label:"Corrected", data:data.corrected, borderColor:"#4bc0c0", pointRadius:0}
+            ]
+        },
+        options:{responsive:true, maintainAspectRatio:false}
+    });
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    alert(`Ошибка сервера (${res.status}): ${errorData.detail || 'Неизвестная ошибка'}`);
-                    return;
-                }
+    if(position==="top") chartTop=chart;
+    else chartBottom=chart;
+}
 
-                const data = await res.json();
-                console.log('Данные от сервера:', data);
+/* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
+function fillTable(data, filename){
+    const tbody=document.querySelector("#dataTable tbody");
+    tbody.innerHTML="";
+    const N=Math.min(data.labels.length,50); // первые 50 точек
+    for(let i=0;i<N;i++){
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${data.labels[i]}</td><td>${data.raw[i].toFixed(4)}</td><td>${data.corrected[i].toFixed(4)}</td><td>${filename}</td>`;
+        tbody.appendChild(tr);
+    }
+}
 
-                pathMap = {};
-                data.path_keyword_files.forEach(p => pathMap[getFileName(p)] = p);
-                data.path_other_files.forEach(p => pathMap[getFileName(p)] = p);
+/* ---------- КНОПКИ ---------- */
+document.getElementById("analyzeBtn").onclick=()=>{
+    const reportName=document.getElementById("reportName").value;
+    console.log("Анализ отчёта для:", reportName);
+    if(selectedTopFile) loadAndDraw(selectedTopFile,"top");
+    if(selectedBottomFile) loadAndDraw(selectedBottomFile,"bottom");
+};
+document.getElementById("reportBtn").onclick=()=>{
+    alert("Функция генерации PDF отчёта будет реализована позже");
+};
 
-                renderUIList('listKeyword', data.keyword_files);
-                renderUIList('listOther', data.other_files);
-            } catch (error) {
-                console.error('Ошибка при сканировании:', error);
-                alert('Ошибка при сканировании папки. Проверьте консоль браузера (F12).');
-            }
-        });
-
-        function renderUIList(id, files) {
-            const el = document.getElementById(id);
-            el.innerHTML = files.length ? '' : '<div style="padding:10px; color:#888;">Нет файлов</div>';
-
-            files.forEach(fileObj => {
-                const item = document.createElement('div');
-                item.className = 'file-item';
-                
-                // Извлекаем имя файла из объекта
-                const displayName = fileObj.title || fileObj.path || JSON.stringify(fileObj);
-                item.textContent = displayName;
-                
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.file-item').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    
-                    // Получаем полный путь из объекта или из карты путей
-                    const fullPath = fileObj.path || pathMap[displayName];
-                    loadFileData(fullPath);
-                });
-                el.appendChild(item);
-            });
+/* ---------- ТЕМА ---------- */
+document.getElementById("themeBtn").onclick=()=>{
+    const html=document.documentElement;
+    const next=html.getAttribute("data-theme")==="light"? "dark":"light";
+    html.setAttribute("data-theme", next);
+    const gridColor=next==="dark"? "#333":"#eee";
+    [chartTop,chartBottom].forEach(c=>{
+        if(c){
+            c.options.scales.x.grid.color=gridColor;
+            c.options.scales.y.grid.color=gridColor;
+            c.update();
         }
-
-
-       
-
-        async function loadFileData(fullPath) {
-            if (!fullPath) return;
-            const fd = new FormData();
-            fd.append('full_path', fullPath);
-
-            try {
-                const res = await fetch('/process-by-path/', { method: 'POST', body: fd });
-                
-                const contentType = res.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await res.text();
-                    console.error('Получен неожиданный ответ:', text);
-                    alert("Файл не найден или ошибка сервера");
-                    return;
-                }
-                
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    alert(`Ошибка: ${errorData.detail || 'Файл не найден'}`);
-                    return;
-                }
-                
-                const data = await res.json();
-                drawCharts(data);
-            } catch (error) {
-                console.error('Ошибка при загрузке данных:', error);
-                alert('Произошла ошибка при загрузке файла');
-            }
-        }
-
-        function drawCharts(data) {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            const gridColor = isDark ? '#333' : '#eee';
-            const textColor = isDark ? '#e4e6eb' : '#333';
-            // Ограничиваем количество меток на оси X (макс. 15)
-            const maxTicks = 15;
-            const step = Math.max(1, Math.floor(data.labels.length / maxTicks));
-            const limitedLabels = data.labels.filter((_, i) => i % step === 0);
-
-            const config = (label, points, color) => ({
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [{ label, data: points, borderColor: color, borderWidth: 1.5, pointRadius: 0, fill: false }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { color: gridColor } ,
-                            ticks: {
-                                maxTicksLimit: maxTicks,
-                                color: textColor,
-                                autoSkip: true,
-                                maxRotation: 0,
-                                minRotation: 0
-                            }
-                        },
-                        y: { grid: { color: gridColor } }
-                    },
-                    plugins: { title: { display: true, text: data.title } }
-                }
-            });
-
-            if (chartRaw) chartRaw.destroy();
-            if (chartCorr) chartCorr.destroy();
-
-            chartRaw = new Chart(document.getElementById('chartRaw'), config('Raw Signal', data.raw, '#ff6384'));
-            chartCorr = new Chart(document.getElementById('chartCorr'), config('Corrected Signal', data.corrected, '#4bc0c0'));
-        }
-
-        function updateChartsTheme(theme) {
-            const color = theme === 'dark' ? '#333' : '#eee';
-            [chartRaw, chartCorr].forEach(c => {
-                if (c) {
-                    c.options.scales.x.grid.color = color;
-                    c.options.scales.y.grid.color = color;
-                    c.update();
-                }
-            });
-        }
+    });
+};
 </script>
 </body>
-
 </html>
