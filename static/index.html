@@ -31,13 +31,21 @@ body {
     background: var(--card);
     padding:20px; border-radius:12px;
 }
-.folder-input { display:flex; gap:10px; margin-bottom:20px; }
-input[type="text"] { flex:1; padding:8px; border-radius:5px; border:1px solid var(--border); }
+.folder-input { display:flex; gap:10px; margin-bottom:20px; align-items:center; }
+
+/* фиксированная ширина для обоих полей */
+.input-wide {
+    width: 90%; /* одинаковая ширина */
+    padding:8px;
+    border-radius:5px;
+    border:1px solid var(--border);
+}
+
 button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; color:white; }
 .scan-btn { background: var(--accent); }
 #analyzeBtn { background:#28a745; }
 #reportBtn { background:#6c757d; }
-#themeBtn { background:#ffc107; color:#333; }
+#themeBtn { background:#ffc107; color:#333; width: 10%; }
 
 .main-layout { display:grid; grid-template-columns:350px 1fr; gap:20px; }
 .file-list { height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; }
@@ -54,12 +62,12 @@ button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; colo
 <h2>🧬 Signal Processor</h2>
 
 <div class="folder-input">
-<input id="pathInput" placeholder="Введите путь к папке">
+<input id="pathInput" class="input-wide" placeholder="Введите путь к папке">
 <button class="scan-btn">Сканировать</button>
 </div>
 
 <div class="folder-input">
-<input id="reportName" type="text" placeholder="Имя отчёта PDF">
+<input id="reportName" class="input-wide" type="text" placeholder="Имя отчёта PDF">
 <button id="analyzeBtn">Анализ</button>
 <button id="reportBtn">Отчёт</button>
 <button id="themeBtn">🌙 / ☀️ Тема</button>
