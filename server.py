@@ -25,6 +25,7 @@ from categorize_frf_files import categorize_frf_files
 from reveal_paths import reveal_paths, extract_paths_from_categorize
 from convert_numpy_types import convert_numpy_types
 from find_numpy_types import find_numpy_types
+from score_peaks import score_peaks_genlib
 
 app = FastAPI(
     title="DNA Length Signal Processor",
@@ -106,6 +107,81 @@ async def process_by_path(full_path: str = Form(...)):
     except Exception as e:
         print("❌ Ошибка обработки:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/analyze-pair/", summary="Обработка двух файлов для анализа")
+async def analyze_pair(
+    top_path: str = Form(None),
+    bottom_path: str = Form(None)
+):
+    """
+    Берёт два пути к файлам, обрабатывает и возвращает:
+    - top: график верхний (raw, corrected, fill, vlines, hlines)
+    - bottom: график нижний (raw, corrected, fill, vlines, hlines)
+    - extra_top / extra_bottom: график только линия и точки (для PDF)
+    - table: DataFrame с колонками top_raw, top_corrected, bottom_raw, bottom_corrected
+    """
+    if not top_path and not bottom_path:
+        raise HTTPException(status_code=400,detail='Нужно указать хотя бы один файл')
+    def process_file(path, include_fill=True, include_lines=True, extra=False):
+        if not path or not os.path.exists(path):
+            raise HTTPException(status_code=400, detail=f"Файл не найден: {path}")
+        try:
+            matrix_df, channels_df, metadata = parse_frf_file(path)
+            df_proc = subtract_reference_from_columns(channels_df, 50)
+            signal_raw = df_proc['dR110'].values
+            time = np.arange(len(signal_raw))
+            signal_corrected = msbackadj(time, signal_raw)
+
+            result = {
+                "title": metadata.get("Title", os.path.basename(path)),
+                "labels": time.tolist(),
+                "raw": signal_raw.tolist(),
+                "corrected": signal_corrected.tolist()
+            }
+
+            if include_fill:
+                upper = signal_corrected + 0.05
+                lower = signal_corrected - 0.05
+                result["fill_upper"] = upper.tolist()
+                result["fill_lower"] = lower.tolist()
+
+            if include_lines:
+                vlines = [len(time)//4, len(time)//2, 3*len(time)//4]
+                hlines = [np.mean(signal_corrected)]
+                result["vlines"] = vlines
+                result["hlines"] = hlines
+
+            if extra:
+                result_extra = {
+                    "title": metadata.get("Title", os.path.basename(path)) + " Extra",
+                    "labels": time.tolist(),
+                    "raw": signal_raw.tolist(),
+                    "corrected": signal_corrected.tolist()
+                }
+                return result, result_extra
+
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка обработки {path}: {str(e)}")
+    if top_path:
+        top_data, top_extra = process_file(top_path, include_fill=True, include_lines=True, extra=True)
+    if bottom_path:
+        bottom_data, bottom_extra = process_file(bottom_path, include_fill=True, include_lines=True, extra=True)
+    if bottom_path:
+       # Формируем DataFrame для таблицы (все колонки)
+       matrix_df, channels_df, metadata = parse_frf_file(bottom_path)
+       df_table = score_peaks_genlib(channels_df.loc[:, 'dR110'])
+    
+   
+
+    return JSONResponse({
+        "top": top_data,
+        "bottom": bottom_data,
+        "extra_top": top_extra,
+        "extra_bottom": bottom_extra,
+        "table": df_table.to_dict(orient="records")
+    })
 
 @app.post("/process-frf/", summary="Загрузить .frf и получить график")
 async def process_frf(file: UploadFile = File(...)):

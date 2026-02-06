@@ -4,45 +4,16 @@
 <meta charset="UTF-8">
 <title>FRF DNA Analyzer</title>
 <script src="/static/js/chart.umd.js"></script>
-<script src="/static/js/html2canvas.min.js"></script>
 <script src="/static/js/jspdf.umd.min.js"></script>
 <style>
 :root {
-    --bg: #f0f2f5;
-    --card: #ffffff;
-    --text: #333;
-    --border: #ccc;
-    --accent: #007bff;
+    --bg: #f0f2f5; --card: #ffffff; --text: #333; --border: #ccc; --accent: #007bff;
 }
-[data-theme="dark"] {
-    --bg: #18191a;
-    --card: #242526;
-    --text: #e4e6eb;
-    --border: #3e4042;
-    --accent: #2d88ff;
-}
-body {
-    font-family: Segoe UI, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin:0; padding:20px;
-    transition:0.3s;
-}
-.container {
-    max-width:1400px; margin:auto;
-    background: var(--card);
-    padding:20px; border-radius:12px;
-}
+[data-theme="dark"] { --bg: #18191a; --card: #242526; --text: #e4e6eb; --border: #3e4042; --accent: #2d88ff; }
+body { font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:20px; transition:0.3s; }
+.container { max-width:1400px; margin:auto; background: var(--card); padding:20px; border-radius:12px; }
 .folder-input { display:flex; gap:10px; margin-bottom:20px; align-items:center; }
-
-/* одинаковая ширина для полей ввода */
-.input-wide {
-    width: 90%; /* одинаковая ширина */
-    padding:8px;
-    border-radius:5px;
-    border:1px solid var(--border);
-}
-
+.input-wide { width: 90%; padding:8px; border-radius:5px; border:1px solid var(--border); }
 button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; color:white; }
 .scan-btn { background: var(--accent); }
 #analyzeBtn { background:#28a745; }
@@ -63,13 +34,11 @@ button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; colo
 <div class="container">
 <h2>🧬 Signal Processor</h2>
 
-<!-- Ввод папки -->
 <div class="folder-input">
 <input id="pathInput" class="input-wide" placeholder="Введите путь к папке">
 <button class="scan-btn">Сканировать</button>
 </div>
 
-<!-- Ввод имени отчёта и кнопки -->
 <div class="folder-input">
 <input id="reportName" class="input-wide" type="text" placeholder="Имя отчёта PDF">
 <button id="analyzeBtn">Анализ</button>
@@ -98,13 +67,14 @@ button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; colo
 <thead>
 <tr>
 <th>Index</th>
-<th>Raw</th>
-<th>Corrected</th>
-<th>Файл</th>
+<th>Top Raw</th>
+<th>Top Corrected</th>
+<th>Bottom Raw</th>
+<th>Bottom Corrected</th>
 </tr>
 </thead>
 <tbody>
-<tr><td colspan="4" style="color:#888;">Выберите файл для отображения данных</td></tr>
+<tr><td colspan="5" style="color:#888;">Выберите файл для отображения данных</td></tr>
 </tbody>
 </table>
 </main>
@@ -148,100 +118,181 @@ function renderUIList(id, files, position){
             item.classList.add('active');
 
             const fullPath=fileObj.path || pathMap[displayName];
-            if(position==="top"){ selectedTopFile=fullPath; loadAndDraw(fullPath,"top"); }
-            else{ selectedBottomFile=fullPath; loadAndDraw(fullPath,"bottom"); }
+            if(position==="top"){ selectedTopFile=fullPath; loadPairAnalysis(); }
+            else{ selectedBottomFile=fullPath; loadPairAnalysis(); }
         });
         el.appendChild(item);
     });
 }
 
-/* ---------- ЗАГРУЗКА И ПОСТРОЕНИЕ ГРАФИКА ---------- */
-async function loadAndDraw(fullPath, position){
-    const fd = new FormData();
-    fd.append("full_path", fullPath);
-    const res = await fetch("/process-by-path/", { method:"POST", body:fd });
-    const data = await res.json();
-    drawChart(data, position);
-    fillTable(data, fullPath);
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+async function loadPairAnalysis(){
+    if(!selectedTopFile || !selectedBottomFile) return;
+    const fd=new FormData();
+    fd.append("top_path", selectedTopFile);
+    fd.append("bottom_path", selectedBottomFile);
+
+    const res=await fetch("/analyze-pair/", { method:"POST", body:fd });
+    const data=await res.json();
+
+    drawChartPair(data.top, "chartTop");
+    drawChartPair(data.bottom, "chartBottom");
+    fillTable(data.table);
+
+    // Сохраняем extra график для PDF
+    window.extraTop = data.extra_top;
+    window.extraBottom = data.extra_bottom;
+
+    // **Сохраняем таблицу для PDF**
+    window.tableData = data.table;  // <<< вот ключевой момент
 }
 
-/* ---------- Функция для построения графика ---------- */
-function drawChart(data, position){
-    const canvas = position==="top"? document.getElementById("chartTop") : document.getElementById("chartBottom");
-    if(position==="top" && chartTop) chartTop.destroy();
-    if(position==="bottom" && chartBottom) chartBottom.destroy();
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
+function drawChartPair(data, canvasId){
+    const canvas=document.getElementById(canvasId);
+    if(canvasId==="chartTop" && chartTop) chartTop.destroy();
+    if(canvasId==="chartBottom" && chartBottom) chartBottom.destroy();
 
-    const chart = new Chart(canvas,{
-        type:"line",
-        data:{
-            labels:data.labels,
-            datasets:[
-                {label:"Raw", data:data.raw, borderColor:"#ff6384", pointRadius:0},
-                {label:"Corrected", data:data.corrected, borderColor:"#4bc0c0", pointRadius:0}
-            ]
-        },
-        options:{responsive:true, maintainAspectRatio:false}
-    });
+    const datasets=[
+        {label:"Raw", data:data.raw, borderColor:"#ff6384", pointRadius:0},
+        {label:"Corrected", data:data.corrected, borderColor:"#4bc0c0", pointRadius:0}
+    ];
 
-    if(position==="top") chartTop=chart;
-    else chartBottom=chart;
+    if(data.fill_upper && data.fill_lower){
+        datasets.push({
+            label:"Fill",
+            data:data.fill_upper,
+            borderColor:"rgba(0,0,0,0)",
+            backgroundColor:"rgba(0,128,0,0.1)",
+            fill:"+1"
+        });
+    }
+
+    if(data.vlines){
+        data.vlines.forEach(x=>{
+            datasets.push({
+                label:"VLine", data:Array(data.labels.length).fill(null), borderColor:"#000000",
+                borderDash:[5,5], pointRadius:0
+            });
+        });
+    }
+
+    if(canvasId==="chartTop") chartTop=new Chart(canvas,{type:"line", data:{labels:data.labels, datasets:datasets}, options:{responsive:true, maintainAspectRatio:false}});
+    else chartBottom=new Chart(canvas,{type:"line", data:{labels:data.labels, datasets:datasets}, options:{responsive:true, maintainAspectRatio:false}});
 }
 
 /* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
-function fillTable(data, filename){
-    const tbody=document.querySelector("#dataTable tbody");
-    tbody.innerHTML="";
-    const N=Math.min(data.labels.length,50); // первые 50 точек
-    for(let i=0;i<N;i++){
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${data.labels[i]}</td><td>${data.raw[i].toFixed(4)}</td><td>${data.corrected[i].toFixed(4)}</td><td>${filename}</td>`;
-        tbody.appendChild(tr);
-    }
-}
+function fillTable(tableData){
+    const tbody = document.querySelector("#dataTable tbody");
+    const thead = document.querySelector("#dataTable thead");
 
-/* ---------- КНОПКИ ---------- */
-document.getElementById("analyzeBtn").onclick=()=>{
-    const reportName=document.getElementById("reportName").value;
-    console.log("Анализ отчёта для:", reportName);
-    if(selectedTopFile) loadAndDraw(selectedTopFile,"top");
-    if(selectedBottomFile) loadAndDraw(selectedBottomFile,"bottom");
-};
+    tbody.innerHTML = "";
+
+    if(!tableData || !tableData.length){
+        tbody.innerHTML = '<tr><td colspan="10" style="color:#888;">Нет данных</td></tr>';
+        return;
+    }
+
+    // --- Динамическое создание заголовков ---
+    const colNames = Object.keys(tableData[0]);
+    thead.innerHTML = "<tr>" + colNames.map(c=>`<th>${c}</th>`).join("") + "</tr>";
+
+    // --- Заполняем строки ---
+    tableData.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = colNames.map(c => `<td>${row[c] !== undefined ? row[c] : ""}</td>`).join("");
+        tbody.appendChild(tr);
+    });
+}
 
 /* ---------- КНОПКА PDF ---------- */
 document.getElementById("reportBtn").onclick = async () => {
-    const { jsPDF } = window.jspdf;
-    const pdfName = document.getElementById("reportName").value || "report";
-    const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: 'a4'
-    });
-
-    const margin = 20;
-    let y = margin;
-
-    // Массив графиков (можно добавить ещё)
-    const elements = [
-        document.getElementById("chartTop"),
-        document.getElementById("chartBottom")
-    ];
-
-    for (const el of elements) {
-        const canvas = await html2canvas(el);
-        const imgData = canvas.toDataURL("image/png");
-        const pdfWidth = pdf.internal.pageSize.getWidth() - 2*margin;
-        const pdfHeight = 200; // фиксированная высота графика
-        pdf.addImage(imgData, "PNG", margin, y, pdfWidth, pdfHeight);
-        y += pdfHeight + 10;
+    if (!window.extraTop || !window.extraBottom || !window.tableData) {
+        alert("Сначала выберите файлы и убедитесь, что таблица загружена");
+        return;
     }
 
-    // Таблица
-    const tableCanvas = await html2canvas(document.getElementById("dataTable"));
-    const tableImg = tableCanvas.toDataURL("image/png");
-    const tableHeight = tableCanvas.height * ((pdf.internal.pageSize.getWidth() - 2*margin)/tableCanvas.width);
-    pdf.addImage(tableImg, "PNG", margin, y, pdf.internal.pageSize.getWidth() - 2*margin, tableHeight);
+    const reportName = document.getElementById("reportName").value || "report";
+    const { jsPDF } = window.jspdf;
 
-    pdf.save(pdfName + ".pdf");
+    // Создаём PDF в альбомной ориентации
+    const pdf = new jsPDF("l", "mm", "a4");
+
+    // Функция для вставки canvas без обрезки
+    function addCanvasToPdf(canvas, yPos) {
+        const imgData = canvas.toDataURL("image/png");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        // Подгоняем ширину под страницу, сохраняем пропорции
+        const ratio = canvas.width / canvas.height;
+        const imgWidth = pageWidth - 20; // отступ 10 мм с каждой стороны
+        const imgHeight = imgWidth / ratio;
+        pdf.addImage(imgData, "PNG", 10, yPos, imgWidth, imgHeight);
+    }
+
+    // --- Top график ---
+    pdf.setFontSize(12);
+    pdf.text("Top Graph", 10, 10);
+    addCanvasToPdf(chartTop.canvas, 15);
+
+    // --- Bottom график ---
+    pdf.addPage();
+    pdf.text("Bottom Graph", 10, 10);
+    addCanvasToPdf(chartBottom.canvas, 15);
+
+    // --- Extra график ---
+    pdf.addPage();
+    pdf.text("Extra Graph", 10, 10);
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = 1200;
+    tempCanvas.height = 300;
+    new Chart(tempCanvas, {
+        type: "line",
+        data: {
+            labels: window.extraTop.labels,
+            datasets: [{ label: "Extra Raw", data: window.extraTop.raw, borderColor: "#ff6384", pointRadius: 2 }]
+        },
+        options: { responsive: false, animation: false, maintainAspectRatio: false }
+    });
+    addCanvasToPdf(tempCanvas, 15);
+
+    // --- Таблица ---
+    pdf.addPage();
+    pdf.setFontSize(10);
+
+    const tableData = window.tableData;
+    if (tableData && tableData.length) {
+        const colNames = Object.keys(tableData[0]);
+        const colWidth = (pdf.internal.pageSize.getWidth() - 20) / colNames.length;
+        let startY = 20;
+
+        // Заголовки таблицы
+        pdf.setFont("helvetica", "bold");
+        colNames.forEach((col, i) => pdf.text(String(col), 10 + i * colWidth, startY));
+        startY += 7;
+
+        pdf.setFont("helvetica", "normal");
+
+        // Строки таблицы
+        tableData.forEach((row, rowIndex) => {
+            if (startY > pdf.internal.pageSize.getHeight() - 15) {
+                pdf.addPage();
+                startY = 20;
+                colNames.forEach((col, i) => pdf.text(String(col), 10 + i * colWidth, startY));
+                startY += 7;
+            }
+            colNames.forEach((col, i) => {
+                let text = row[col] !== undefined ? String(row[col]) : "";
+                pdf.text(text, 10 + i * colWidth, startY);
+            });
+            startY += 7;
+        });
+    } else {
+        pdf.text("Нет данных", 10, 20);
+    }
+
+    pdf.save(reportName + ".pdf");
 };
 
 /* ---------- ТЕМА ---------- */
@@ -249,14 +300,6 @@ document.getElementById("themeBtn").onclick=()=>{
     const html=document.documentElement;
     const next=html.getAttribute("data-theme")==="light"? "dark":"light";
     html.setAttribute("data-theme", next);
-    const gridColor=next==="dark"? "#333":"#eee";
-    [chartTop,chartBottom].forEach(c=>{
-        if(c){
-            c.options.scales.x.grid.color=gridColor;
-            c.options.scales.y.grid.color=gridColor;
-            c.update();
-        }
-    });
 };
 </script>
 </body>

@@ -59,16 +59,7 @@ def score_peaks_genlib(
     # Handle case with no peaks detected
     if len(peaks) == 0:
         print('Пики не найдены. Попробуйте изменить параметры поиска.')
-        fig, ax = plt.subplots(figsize=(14, 7))
-        x = np.arange(len(data))
-        ax.plot(x, data, linewidth=2, color='blue', label='Сигнал')
-        ax.set_xlabel('Номер точки', fontsize=12)
-        ax.set_ylabel('Интенсивность', fontsize=12)
-        ax.set_title(title, fontsize=14, fontweight='bold')
-        ax.grid(True, alpha=0.3)
-        ax.legend()
-        plt.tight_layout()
-        plt.show()
+        
         
         # Return empty DataFrame with expected columns
         columns = [
