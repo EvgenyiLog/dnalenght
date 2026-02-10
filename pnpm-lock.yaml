@@ -11,6 +11,9 @@ importers:
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
+      dejavu-fonts-ttf:
+        specifier: ^2.37.3
+        version: 2.37.3
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1
@@ -53,6 +56,9 @@ packages:
 
   css-line-break@2.1.0:
     resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
+
+  dejavu-fonts-ttf@2.37.3:
+    resolution: {integrity: sha512-f1hd7jJbeQa1VWcw+K2KrTXS50zTMaHpVC4XIKJpNcDeYR5ajMtj/iLlQDYNvLOKamUB3ARVVCf79lNwNVztSQ==}
 
   dompurify@3.3.1:
     resolution: {integrity: sha512-qkdCKzLNtrgPFP1Vo+98FRzJnBRGe4ffyCea9IwHB1fyxPOeNTHpLKYGd4Uk9xvNoH0ZoOjwZxNptyMwqrId1Q==}
@@ -141,6 +147,8 @@ snapshots:
   css-line-break@2.1.0:
     dependencies:
       utrie: 1.0.2
+
+  dejavu-fonts-ttf@2.37.3: {}
 
   dompurify@3.3.1:
     optionalDependencies:

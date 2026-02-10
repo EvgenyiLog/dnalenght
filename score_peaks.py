@@ -183,16 +183,16 @@ def score_peaks_genlib(
     full_table_data = []
     for i in range(n_peaks):
         full_table_data.append({
-            'Пик №': i + 1,
-            'Позиция': int(peaks[i]),
-            'Высота': float(data[peaks[i]]),
-            'Ширина FWHM': float(widths[i]),
-            'Площадь': float(areas[i]),
-            'Проминенс': float(prominences[i]),
-            'Лев.граница': int(left_ips[i]),
-            'Прав.граница': int(right_ips[i]),
-            'Баллы': float(Points[i]),
-            'Выбран': '✓' if i in selected_peaks else ''
+            'Peaks number': i + 1,
+            'Index': int(peaks[i]),
+            'Height': float(data[peaks[i]]),
+            'Widths FWHM': float(widths[i]),
+            'Area': float(areas[i]),
+            'Prominice': float(prominences[i]),
+            'left_ps': int(left_ips[i]),
+            'right_ips': int(right_ips[i]),
+            'Mark': float(Points[i]),
+            'Selected': '✓' if i in selected_peaks else ''
         })
     
     df_full = pd.DataFrame(full_table_data)

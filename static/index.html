@@ -5,6 +5,7 @@
 <title>FRF DNA Analyzer</title>
 <script src="/static/js/chart.umd.js"></script>
 <script src="/static/js/jspdf.umd.min.js"></script>
+<script src="/static/fonts/DejaVuSans.base64.js"></script>
 <style>
 :root {
     --bg: #f0f2f5; --card: #ffffff; --text: #333; --border: #ccc; --accent: #007bff;
@@ -204,6 +205,13 @@ function fillTable(tableData){
         tbody.appendChild(tr);
     });
 }
+/* ---------- ШРИФТ PDF ---------- */
+function initPdfFont(pdf){
+    pdf.addFileToVFS("app/static/fonts/DejaVuSans.ttf", window.DejaVuSansBase64);
+    pdf.addFont("DejaVuSans.ttf", "DejaVuSans", "normal");
+    pdf.setFont("DejaVuSans");
+}
+
 
 /* ---------- КНОПКА PDF ---------- */
 document.getElementById("reportBtn").onclick = async () => {
@@ -231,7 +239,8 @@ document.getElementById("reportBtn").onclick = async () => {
     }
 
     // --- Top график ---
-    pdf.setFontSize(12);
+    initPdfFont(pdf);
+    pdf.setFontSize(14);
     pdf.text("Top Graph", 10, 10);
     addCanvasToPdf(chartTop.canvas, 15);
 
