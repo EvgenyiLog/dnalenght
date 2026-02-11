@@ -144,7 +144,7 @@ def plot_peak_analysis(
     if np.any(selected_indices_arr < 0) or np.any(selected_indices_arr >= len(peaks_arr)):
         raise ValueError(
             f"Некоторые индексы в selected_peaks_indices выходят за границы массива peaks "
-            f"(допустимый диапазон: 0–{len(peaks_arr) - 1})"
+            f"(допустимый диапазон: 0–{len(peaks_arr)})"
         )
     
     # Проверка размеров (если указаны)
