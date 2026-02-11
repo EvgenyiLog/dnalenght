@@ -127,97 +127,123 @@ function renderUIList(id, files, position){
 }
 
 /* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
-async function loadPairAnalysis(){
-    if(!selectedTopFile || !selectedBottomFile) return;
-    const fd=new FormData();
-    fd.append("top_path", selectedTopFile);
-    fd.append("bottom_path", selectedBottomFile);
+    async function loadPairAnalysis() {
+        if (!selectedTopFile || !selectedBottomFile) return;
 
-    const res=await fetch("/analyze-pair/", { method:"POST", body:fd });
-    const data=await res.json();
+        const fd = new FormData();
+        fd.append("top_path", selectedTopFile);
+        fd.append("bottom_path", selectedBottomFile);
 
-    drawChartPair(data.top, "chartTop");
-    drawChartPair(data.bottom, "chartBottom");
-    fillTable(data.table);
+        const res = await fetch("/analyze-pair/", { method: "POST", body: fd });
+        const data = await res.json();
 
-    // Сохраняем extra график для PDF
-    window.extraTop = data.extra_top;
-    window.extraBottom = data.extra_bottom;
+        console.log("BOTTOM PEAKS FROM SERVER:", data.bottom_peaks);
 
-    // **Сохраняем таблицу для PDF**
-    window.tableData = data.table;  // <<< вот ключевой момент
-}
+        drawChartPair(data.top, "chartTop");
+        drawChartPair(data.bottom, "chartBottom", data.bottom_peaks);
+
+        fillTable(data.table);
+
+        window.extraTop = data.extra_top;
+        window.extraBottom = data.extra_bottom;
+        window.tableData = data.table;
+    }
+
 
 /* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
-function drawChartPair(data, canvasId, selectedPeaks=[]) {
-    const canvas = document.getElementById(canvasId);
+    function drawChartPair(data, canvasId, selectedPeaks = []) {
 
-    if(canvasId==="chartTop" && chartTop) chartTop.destroy();
-    if(canvasId==="chartBottom" && chartBottom) chartBottom.destroy();
+        const canvas = document.getElementById(canvasId);
 
-    if(canvasId === "chartTop") {
-        const datasets = [
-            {label:"Raw", data:data.raw.map((y,i)=>({x:i,y:y})), borderColor:"#ff6384", pointRadius:0},
-            {label:"Corrected", data:data.corrected.map((y,i)=>({x:i,y:y})), borderColor:"#4bc0c0", pointRadius:0}
-        ];
+        if (canvasId === "chartTop" && chartTop) chartTop.destroy();
+        if (canvasId === "chartBottom" && chartBottom) chartBottom.destroy();
 
-        chartTop = new Chart(canvas,{
-            type:"line",
-            data:{datasets:datasets},
-            options:{
-                responsive:true,
-                maintainAspectRatio:false,
-                scales:{
-                    x:{type:"linear", title:{display:true,text:"Индекс"}},
-                    y:{title:{display:true,text:"Интенсивность"}}
+        /* ===================== ВЕРХНИЙ ===================== */
+        if (canvasId === "chartTop") {
+
+            const datasets = [
+                {
+                    label: "Raw",
+                    data: data.raw.map((y, i) => ({ x: i, y: y })),
+                    borderColor: "#ff6384",
+                    pointRadius: 0
+                },
+                {
+                    label: "Corrected",
+                    data: data.corrected.map((y, i) => ({ x: i, y: y })),
+                    borderColor: "#4bc0c0",
+                    pointRadius: 0
+                }
+            ];
+
+            chartTop = new Chart(canvas, {
+                type: "scatter",
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: "linear", title: { display: true, text: "Индекс" } },
+                        y: { title: { display: true, text: "Интенсивность" } }
+                    }
+                }
+            });
+
+            return;
+        }
+
+        /* ===================== НИЖНИЙ ===================== */
+
+        const signalData = data.corrected.map((y, i) => ({ x: i, y: y }));
+
+        /* console.log("Пики пришли:", selectedPeaks);
+        console.log("Количество пиков:", selectedPeaks.length); */
+
+        chartBottom = new Chart(canvas, {
+            type: "scatter",
+            data: {
+                datasets: [
+                    {
+                        type: "line",
+                        label: "Сигнал",
+                        data: signalData,
+                        borderColor: "blue",
+                        borderWidth: 1,
+                        showLine: true,
+                        pointRadius: 0,
+                        fill: false,
+                        tension: 0
+                    },
+                    {
+                        type: "scatter",
+                        label: "Выбранные пики",
+                        data: selectedPeaks,
+                        backgroundColor: "red",
+                        borderColor: "black",
+                        borderWidth: 1,
+                        pointRadius: 8,
+                        showLine: false,
+                        order: 10
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                scales: {
+                    x: {
+                        type: "linear",
+                        title: { display: true, text: "Индекс" }
+                    },
+                    y: {
+                        title: { display: true, text: "Интенсивность" }
+                    }
                 }
             }
         });
-
-        return;
     }
 
-    // ---------- Нижний график ----------
-    const signalData = data.corrected.map((y,i)=>({x:i,y:y}));
-
-    chartBottom = new Chart(canvas,{
-        type:"scatter",
-        data:{
-            datasets:[
-                {
-                    type:"line",
-                    label:"Сигнал",
-                    data:signalData,
-                    borderColor:"blue",
-                    showLine:true,
-                    pointRadius:0,
-                    fill:false,
-                    tension:0
-                },
-                {
-                    type:"scatter",
-                    label:"Выбранные пики",
-                    data:selectedPeaks,       // <- сюда передаем пики
-                    backgroundColor:"red",
-                    borderColor:"black",
-                    borderWidth:1,
-                    pointRadius:6,
-                    showLine:false,
-                    order:2
-                }
-            ]
-        },
-        options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            plugins:{title:{display:true,text:"Выбранные пики"}},
-            scales:{
-                x:{type:"linear", title:{display:true,text:"Индекс"}},
-                y:{title:{display:true,text:"Интенсивность"}}
-            }
-        }
-    });
-}
 /* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
 function fillTable(tableData){
     const tbody = document.querySelector("#dataTable tbody");
