@@ -169,9 +169,26 @@ async def analyze_pair(
     if bottom_path:
         bottom_data, bottom_extra = process_file(bottom_path, include_fill=True, include_lines=True, extra=True)
     if bottom_path:
-       # Формируем DataFrame для таблицы (все колонки)
-       matrix_df, channels_df, metadata = parse_frf_file(bottom_path)
-       df_table = score_peaks_genlib(channels_df.loc[:, 'dR110'])
+        # Формируем DataFrame для таблицы (все колонки)
+        matrix_df, channels_df, metadata = parse_frf_file(bottom_path)
+        df_proc = subtract_reference_from_columns(channels_df, 50)
+        signal_raw = df_proc['dR110'].values
+        time = np.arange(len(signal_raw))
+        signal_corrected = msbackadj(time, signal_raw)
+        df_table = score_peaks_genlib(signal_corrected)
+        signal_for_peaks=signal_corrected
+        peaks=df_table['Index'].astype(int).tolist()
+        points=df_table['Mark'].astype(float).tolist()
+        selected_indices=df_table[df_table['Selected'] == '✓']['Index'].astype(int).tolist()
+        botom_peaks=[]
+        for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
+            idx=int(row['Index'])
+            y_val=float(signal_corrected[idx])
+            botom_peaks.append({"x":idx,"y":y_val})
+        print(botom_peaks)
+        print(peaks)
+        print(selected_indices)
+       
     
    
 
@@ -180,8 +197,15 @@ async def analyze_pair(
         "bottom": bottom_data,
         "extra_top": top_extra,
         "extra_bottom": bottom_extra,
-        "table": df_table.to_dict(orient="records")
+        "table": df_table.to_dict(orient="records"),
+        "bottom_peaks":botom_peaks
+           
+       
     })
+
+
+
+
 
 @app.post("/process-frf/", summary="Загрузить .frf и получить график")
 async def process_frf(file: UploadFile = File(...)):

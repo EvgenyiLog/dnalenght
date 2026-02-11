@@ -150,38 +150,80 @@ async function loadPairAnalysis(){
 
 /* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
 function drawChartPair(data, canvasId){
-    const canvas=document.getElementById(canvasId);
+    const canvas = document.getElementById(canvasId);
+
     if(canvasId==="chartTop" && chartTop) chartTop.destroy();
     if(canvasId==="chartBottom" && chartBottom) chartBottom.destroy();
 
-    const datasets=[
-        {label:"Raw", data:data.raw, borderColor:"#ff6384", pointRadius:0},
-        {label:"Corrected", data:data.corrected, borderColor:"#4bc0c0", pointRadius:0}
-    ];
+    if(canvasId === "chartTop"){
+        const datasets = [
+            {label:"Raw", data:data.raw.map((y,i)=>({x:i,y:y})), borderColor:"#ff6384", pointRadius:0},
+            {label:"Corrected", data:data.corrected.map((y,i)=>({x:i,y:y})), borderColor:"#4bc0c0", pointRadius:0}
+        ];
 
-    if(data.fill_upper && data.fill_lower){
-        datasets.push({
-            label:"Fill",
-            data:data.fill_upper,
-            borderColor:"rgba(0,0,0,0)",
-            backgroundColor:"rgba(0,128,0,0.1)",
-            fill:"+1"
+        chartTop = new Chart(canvas,{
+            type:"line",
+            data:{datasets:datasets},
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+                scales:{
+                    x:{type:"linear", title:{display:true,text:"Индекс"}},
+                    y:{title:{display:true,text:"Интенсивность"}}
+                }
+            }
         });
+
+        return;
     }
 
-    if(data.vlines){
-        data.vlines.forEach(x=>{
-            datasets.push({
-                label:"VLine", data:Array(data.labels.length).fill(null), borderColor:"#000000",
-                borderDash:[5,5], pointRadius:0
-            });
-        });
-    }
+    // ---------- Нижний график с красными точками ----------
+    const signalData = data.corrected.map((y,i)=>({x:i,y:y}));
+    const selectedPeaks = (data.bottom_peaks && data.bottom_peaks.selected_indices)
+        ? data.bottom_peaks.selected_indices.map(idx => ({x: idx, y: data.corrected[idx]}))
+        : [];
 
-    if(canvasId==="chartTop") chartTop=new Chart(canvas,{type:"line", data:{labels:data.labels, datasets:datasets}, options:{responsive:true, maintainAspectRatio:false}});
-    else chartBottom=new Chart(canvas,{type:"line", data:{labels:data.labels, datasets:datasets}, options:{responsive:true, maintainAspectRatio:false}});
+    chartBottom = new Chart(canvas,{
+        type:"scatter", // меняем на scatter
+        data:{
+            datasets:[
+                {
+                    label:"Сигнал",
+                    data:signalData,
+                    borderColor:"blue",
+                    backgroundColor:"blue",
+                    showLine:true,       // соединяем точки линией
+                    fill:false,
+                    pointRadius:0,
+                    tension:0
+                },
+                {
+                    label:"Выбранные пики",
+                    data:selectedPeaks,
+                    backgroundColor:"red",
+                    borderColor:"black",
+                    borderWidth:1,
+                    pointRadius:8,
+                    showLine:true,
+                    hoverRadius:15,
+                    order:2 // всегда поверх синей линии
+                }
+            ]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                title:{display:true,text:"Выбранные пики"}
+            },
+            scales:{
+                x:{type:"linear", title:{display:true,text:"Индекс"}},
+                y:{title:{display:true,text:"Интенсивность"}}
+            }
+        }
+    });
+    console.log(selectedPeaks)
 }
-
 /* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
 function fillTable(tableData){
     const tbody = document.querySelector("#dataTable tbody");
