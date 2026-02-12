@@ -161,148 +161,140 @@ async function loadPairAnalysis() {
 
 /* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
 /* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
-    async function loadPairAnalysis() {
-        if (!selectedTopFile || !selectedBottomFile) return;
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+async function loadPairAnalysis() {
+    if (!selectedTopFile || !selectedBottomFile) return;
 
-        const fd = new FormData();
-        fd.append("top_path", selectedTopFile);
-        fd.append("bottom_path", selectedBottomFile);
+    const fd = new FormData();
+    fd.append("top_path", selectedTopFile);
+    fd.append("bottom_path", selectedBottomFile);
 
-        const res = await fetch("/analyze-pair/", { method: "POST", body: fd });
-        const data = await res.json();
+    const res = await fetch("/analyze-pair/", { method: "POST", body: fd });
+    const data = await res.json();
 
-        console.log("BOTTOM PEAKS FROM SERVER:", data.bottom_peaks);
+    console.log("TOP PEAKS FROM SERVER:", data.top_peaks);
+    console.log("BOTTOM PEAKS FROM SERVER:", data.bottom_peaks);
+    console.log("CALIBRATION CURVE:", data.calibrationcurve);
 
-        drawChartPair(data.top, "chartTop");
-        drawChartPair(data.bottom, "chartBottom", data.bottom_peaks);
+    // ===== ВЕРХНИЙ ГРАФИК =====
+    drawChartPair(
+        data.top,                 // данные верхнего сигнала
+        "chartTop",               // id канваса верхнего графика
+        data.top_peaks,           // точки пиков
+        data.calibrationcurve     // скрытая calibration curve
+    );
 
-        fillTable(data.table);
+    // ===== НИЖНИЙ ГРАФИК =====
+    drawChartPair(
+        data.bottom,              // данные нижнего сигнала
+        "chartBottom",            // id канваса нижнего графика
+        data.bottom_peaks,        // точки пиков
+        data.calibrationcurve     // скрытая calibration curve
+    );
 
-        window.extraTop = data.extra_top;
-        window.extraBottom = data.extra_bottom;
-        window.tableData = data.table;
-    }
+    // ===== Таблица =====
+    fillTable(data.table);
+
+    // Сохраняем extra графики для PDF
+    window.extraTop = data.extra_top;
+    window.extraBottom = data.extra_bottom;
+
+    // Сохраняем таблицу для PDF
+    window.tableData = data.table;
+}
 
 
 /* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
-    function drawChartPair(data, canvasId, selectedPeaks = []) {
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С ПИКАМИ, ЛИНИЯМИ И CALIBRATION CURVE ---------- */
+function drawChartPair(data, canvasId, selectedPeaks = [], calibrationCurve = null) {
+    const canvas = document.getElementById(canvasId);
 
-        const canvas = document.getElementById(canvasId);
+    // Уничтожаем предыдущий график, если он есть
+    if (canvasId === "chartTop" && chartTop) chartTop.destroy();
+    if (canvasId === "chartBottom" && chartBottom) chartBottom.destroy();
 
-        if (canvasId === "chartTop" && chartTop) chartTop.destroy();
-        if (canvasId === "chartBottom" && chartBottom) chartBottom.destroy();
+    // Данные основного сигнала
+    const signalData = data.corrected.map((y, i) => ({ x: i, y: y }));
 
-        /* ===================== ВЕРХНИЙ ===================== */
-        if (canvasId === "chartTop") {
-
-            const datasets = [
-                {
-                    label: "Raw",
-                    data: data.raw.map((y, i) => ({ x: i, y: y })),
-                    borderColor: "#ff6384",
-                    pointRadius: 0,
-                    showLine: true,
-                    fill: false,
-                    tension: 0
-                },
-                {
-                    label: "Corrected",
-                    data: data.corrected.map((y, i) => ({ x: i, y: y })),
-                    borderColor: "#4bc0c0",
-                    pointRadius: 0,
-                    showLine: true,
-                    fill: false,
-                    tension: 0
-                }
-            ];
-
-            chartTop = new Chart(canvas, {
-                type: "scatter",
-                data: { datasets },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { type: "linear", title: { display: true, text: "Индекс" } },
-                        y: { title: { display: true, text: "Интенсивность" } }
-                    }
-                }
-            });
-
-            return;
-        }
-
-        /* ===================== НИЖНИЙ ===================== */
-
-        const signalData = data.corrected.map((y, i) => ({ x: i, y: y }));
-
-        const datasets = [
-
-            // 🔵 Сигнал
-            {
-                type: "line",
-                label: "Сигнал",
-                data: signalData,
-                borderColor: "blue",
-                borderWidth: 1,
-                showLine: true,
-                pointRadius: 0,
-                fill: false,
-                tension: 0
-            },
-
-            // 🔴 Точки пиков
-            {
-                type: "scatter",
-                label: "Выбранные пики",
-                data: selectedPeaks,
-                backgroundColor: "red",
-                borderColor: "black",
-                borderWidth: 1,
-                pointRadius: 8,
-                showLine: false,
-                order: 10
-            }
-        ];
-
-        // 🔴 Вертикальные линии для каждого пика
-        selectedPeaks.forEach(peak => {
-            datasets.push({
-                type: "line",
-                label: "Peak line",
-                data: [
-                    { x: peak.x, y: 0 },
-                    { x: peak.x, y: peak.y }
-                ],
-                borderColor: "red",
-                borderWidth: 1.5,
-                borderDash: [6, 6],   // пунктир
-                pointRadius: 0,
-                fill: false,
-                tension: 0
-            });
-        });
-
-        chartBottom = new Chart(canvas, {
+    const datasets = [
+        // 🔵 Основной сигнал
+        {
+            type: "line",
+            label: "Сигнал",
+            data: signalData,
+            borderColor: "blue",
+            borderWidth: 1,
+            showLine: true,
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+        },
+        // 🔴 Пики
+        {
             type: "scatter",
-            data: { datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                scales: {
-                    x: {
-                        type: "linear",
-                        title: { display: true, text: "Индекс" }
-                    },
-                    y: {
-                        title: { display: true, text: "Интенсивность" }
-                    }
-                }
-            }
+            label: "Выбранные пики",
+            data: selectedPeaks,
+            backgroundColor: "red",
+            borderColor: "black",
+            borderWidth: 1,
+            pointRadius: 6,
+            showLine: false,
+            order: 10
+        }
+    ];
+
+    // 🔴 Вертикальные линии для каждого пика
+    selectedPeaks.forEach(peak => {
+        datasets.push({
+            type: "line",
+            label: "Peak line",
+            data: [
+                { x: peak.x, y: 0 },
+                { x: peak.x, y: peak.y }
+            ],
+            borderColor: "red",
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+        });
+    });
+
+    // ⚫ Скрытая calibration curve
+    if (calibrationCurve) {
+        datasets.push({
+            type: "line",
+            label: "Calibration curve",
+            data: calibrationCurve.x.map((xVal, i) => ({ x: xVal, y: calibrationCurve.y[i] })),
+            borderColor: "green",
+            borderWidth: 1,
+            showLine: true,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+            hidden: true // скрытая
         });
     }
 
+    const chartConfig = {
+        type: "scatter",
+        data: { datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+                x: { type: "linear", title: { display: true, text: "Индекс" } },
+                y: { title: { display: true, text: "Интенсивность" } }
+            }
+        }
+    };
+
+    // Сохраняем график в глобальную переменную
+    if (canvasId === "chartTop") chartTop = new Chart(canvas, chartConfig);
+    if (canvasId === "chartBottom") chartBottom = new Chart(canvas, chartConfig);
+}
 
 /*------СКРЫТАЯ КАЛИБРОВОЧНАЯ КРИВАЯ----*/
 function drawCalibrationCurve(curveData) {
