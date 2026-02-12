@@ -198,6 +198,7 @@ async function loadPairAnalysis() {
     // Сохраняем extra графики для PDF
     window.extraTop = data.extra_top;
     window.extraBottom = data.extra_bottom;
+    window.calibrationcurve=data.calibrationcurve;
 
     // Сохраняем таблицу для PDF
     window.tableData = data.table;
@@ -366,8 +367,8 @@ function initPdfFont(pdf){
 
 /* ---------- КНОПКА PDF ---------- */
 document.getElementById("reportBtn").onclick = async () => {
-    if (!window.extraTop || !window.extraBottom || !window.tableData) {
-        alert("Сначала выберите файлы и убедитесь, что таблица загружена");
+    if (!window.extraTop || !window.extraBottom || !window.tableData || !window.calibrationcurve) {
+        alert("Сначала выберите файлы и убедитесь, что таблица и калибровочная кривая загружены");
         return;
     }
 
@@ -381,8 +382,6 @@ document.getElementById("reportBtn").onclick = async () => {
     function addCanvasToPdf(canvas, yPos) {
         const imgData = canvas.toDataURL("image/png");
         const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        // Подгоняем ширину под страницу, сохраняем пропорции
         const ratio = canvas.width / canvas.height;
         const imgWidth = pageWidth - 20; // отступ 10 мм с каждой стороны
         const imgHeight = imgWidth / ratio;
@@ -400,21 +399,39 @@ document.getElementById("reportBtn").onclick = async () => {
     pdf.text("Bottom Graph", 10, 10);
     addCanvasToPdf(chartBottom.canvas, 15);
 
-    // --- Extra график ---
+    // --- Calibration Curve (вместо Extra графика) ---
     pdf.addPage();
-    pdf.text("Extra Graph", 10, 10);
+    pdf.text("Calibration Curve", 10, 10);
 
     const tempCanvas = document.createElement("canvas");
     tempCanvas.width = 1200;
     tempCanvas.height = 300;
+
+    // Строим калибровочную кривую из данных с бекенда
     new Chart(tempCanvas, {
         type: "line",
         data: {
-            labels: window.extraTop.labels,
-            datasets: [{ label: "Extra Raw", data: window.extraTop.raw, borderColor: "#ff6384", pointRadius: 2 }]
+            datasets: [{
+                label: "Calibration Curve",
+                data: window.calibrationcurve.x.map((xVal, i) => ({ x: xVal, y: window.calibrationcurve.y[i] })),
+                borderColor: "green",
+                backgroundColor: "green",
+                pointRadius: 2,
+                fill: false,
+                tension: 0
+            }]
         },
-        options: { responsive: false, animation: false, maintainAspectRatio: false }
+        options: {
+            responsive: false,
+            animation: false,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: "linear", title: { display: true, text: "Index" } },
+                y: { title: { display: true, text: "Height" } }
+            }
+        }
     });
+
     addCanvasToPdf(tempCanvas, 15);
 
     // --- Таблица ---
@@ -435,7 +452,7 @@ document.getElementById("reportBtn").onclick = async () => {
         pdf.setFont("helvetica", "normal");
 
         // Строки таблицы
-        tableData.forEach((row, rowIndex) => {
+        tableData.forEach((row) => {
             if (startY > pdf.internal.pageSize.getHeight() - 15) {
                 pdf.addPage();
                 startY = 20;
