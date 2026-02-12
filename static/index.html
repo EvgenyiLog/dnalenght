@@ -127,6 +127,40 @@ function renderUIList(id, files, position){
 }
 
 /* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+async function loadPairAnalysis() {
+
+    if (!selectedTopFile || !selectedBottomFile) return;
+
+    const fd = new FormData();
+    fd.append("top_path", selectedTopFile);
+    fd.append("bottom_path", selectedBottomFile);
+
+    const res = await fetch("/analyze-pair/", {
+        method: "POST",
+        body: fd
+    });
+
+    const data = await res.json();
+
+    console.log("TOP PEAKS:", data.top_peaks);
+    console.log("BOTTOM PEAKS:", data.bottom_peaks);
+    console.log("CALIBRATION:", data.calibrationcurve);
+
+    // 🔵 Рисуем оба графика с пиками
+    drawChartPair(data.top, "chartTop", data.top_peaks);
+    drawChartPair(data.bottom, "chartBottom", data.bottom_peaks);
+
+    fillTable(data.table);
+
+    // 🔵 Строим скрытый calibration
+    drawCalibrationCurve(data.calibrationcurve);
+
+    window.tableData = data.table;
+}
+
+
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
     async function loadPairAnalysis() {
         if (!selectedTopFile || !selectedBottomFile) return;
 
@@ -269,6 +303,43 @@ function renderUIList(id, files, position){
         });
     }
 
+
+/*------СКРЫТАЯ КАЛИБРОВОЧНАЯ КРИВАЯ----*/
+function drawCalibrationCurve(curveData) {
+
+    const canvas = document.getElementById("hiddenChart");
+
+    if (window.calibrationChart)
+        window.calibrationChart.destroy();
+
+    const points = curveData.x.map((xVal, i) => ({
+        x: xVal,
+        y: curveData.y[i]
+    }));
+
+    window.calibrationChart = new Chart(canvas, {
+        type: "scatter",
+        data: {
+            datasets: [{
+                type: "line",
+                label: "Calibration Curve",
+                data: points,
+                borderColor: "green",
+                pointRadius: 5,
+                showLine: true,
+                tension: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            animation: false,
+            scales: {
+                x: { type: "linear" },
+                y: { type: "linear" }
+            }
+        }
+    });
+}
 
 /* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
 function fillTable(tableData){

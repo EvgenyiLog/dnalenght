@@ -13,6 +13,7 @@ from typing import Any, Union, Dict, List
 import tempfile
 from score_peaks import score_peaks_genlib
 from correct_baseline import correct_baseline
+from calculate_calibration_curve import calculate_calibration_curve
 
 # Импорт версии
 from version import _version_,_release_date_
@@ -166,6 +167,26 @@ async def analyze_pair(
             raise HTTPException(status_code=500, detail=f"Ошибка обработки {path}: {str(e)}")
     if top_path:
         top_data, top_extra = process_file(top_path, include_fill=True, include_lines=True, extra=True)
+    if top_path:
+        matrix_df, channels_df, metadata = parse_frf_file(top_path)
+        df_proc = subtract_reference_from_columns(channels_df, 50)
+        signal_raw = df_proc['dR110'].values
+        time = np.arange(len(signal_raw))
+        signal_corrected = msbackadj(time, signal_raw)
+        df_table = score_peaks_genlib(signal_corrected)
+        df_table=df_table.fillna(0)
+        signal_for_peaks=signal_corrected
+        peaks=df_table['Index'].astype(int).tolist()
+        points=df_table['Mark'].astype(float).tolist()
+        selected_indices=df_table[df_table['Selected'] == '✓']['Index'].astype(int).tolist()
+        top_peaks=[]
+        for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
+            idx=int(row['Index'])
+            y_val=float(signal_corrected[idx])
+            top_peaks.append({"x":idx,"y":y_val})
+        print(top_peaks)
+        print(peaks)
+        print(selected_indices)
     if bottom_path:
         bottom_data, bottom_extra = process_file(bottom_path, include_fill=True, include_lines=True, extra=True)
     if bottom_path:
@@ -176,18 +197,28 @@ async def analyze_pair(
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
         df_table = score_peaks_genlib(signal_corrected)
+        df_table=df_table.fillna(0)
         signal_for_peaks=signal_corrected
         peaks=df_table['Index'].astype(int).tolist()
         points=df_table['Mark'].astype(float).tolist()
         selected_indices=df_table[df_table['Selected'] == '✓']['Index'].astype(int).tolist()
-        botom_peaks=[]
+        bottom_peaks=[]
         for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
             idx=int(row['Index'])
             y_val=float(signal_corrected[idx])
-            botom_peaks.append({"x":idx,"y":y_val})
-        print(botom_peaks)
-        print(peaks)
-        print(selected_indices)
+            bottom_peaks.append({"x":idx,"y":y_val})
+        # print(botom_peaks)
+        # print(peaks)
+        # print(selected_indices)
+
+
+        calibrationresult=calculate_calibration_curve(df_table,'Index','Height')
+        x_vals=calibrationresult.get("x_transformed")
+        y_vals=calibrationresult.get("y_transformed")
+        x_vals=np.nan_to_num(x_vals,nan=0.0,posinf=0.0,neginf=0.0)
+        y_vals=np.nan_to_num(y_vals,nan=0.0,posinf=0.0,neginf=0.0)
+        calibrationcurve={"x":x_vals.astype(float).tolist(),"y":y_vals.astype(float).tolist()}
+
        
     
    
@@ -198,9 +229,9 @@ async def analyze_pair(
         "extra_top": top_extra,
         "extra_bottom": bottom_extra,
         "table": df_table.to_dict(orient="records"),
-        "bottom_peaks":botom_peaks
-           
-       
+        "bottom_peaks":bottom_peaks,
+        "top_peaks":top_peaks,
+        "calibrationcurve":calibrationcurve 
     })
 
 
