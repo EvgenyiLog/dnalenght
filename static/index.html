@@ -166,19 +166,25 @@ function renderUIList(id, files, position){
                     label: "Raw",
                     data: data.raw.map((y, i) => ({ x: i, y: y })),
                     borderColor: "#ff6384",
-                    pointRadius: 0
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false,
+                    tension: 0
                 },
                 {
                     label: "Corrected",
                     data: data.corrected.map((y, i) => ({ x: i, y: y })),
                     borderColor: "#4bc0c0",
-                    pointRadius: 0
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false,
+                    tension: 0
                 }
             ];
 
             chartTop = new Chart(canvas, {
                 type: "scatter",
-                data: { datasets: datasets },
+                data: { datasets },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -196,37 +202,56 @@ function renderUIList(id, files, position){
 
         const signalData = data.corrected.map((y, i) => ({ x: i, y: y }));
 
-        /* console.log("Пики пришли:", selectedPeaks);
-        console.log("Количество пиков:", selectedPeaks.length); */
+        const datasets = [
+
+            // 🔵 Сигнал
+            {
+                type: "line",
+                label: "Сигнал",
+                data: signalData,
+                borderColor: "blue",
+                borderWidth: 1,
+                showLine: true,
+                pointRadius: 0,
+                fill: false,
+                tension: 0
+            },
+
+            // 🔴 Точки пиков
+            {
+                type: "scatter",
+                label: "Выбранные пики",
+                data: selectedPeaks,
+                backgroundColor: "red",
+                borderColor: "black",
+                borderWidth: 1,
+                pointRadius: 8,
+                showLine: false,
+                order: 10
+            }
+        ];
+
+        // 🔴 Вертикальные линии для каждого пика
+        selectedPeaks.forEach(peak => {
+            datasets.push({
+                type: "line",
+                label: "Peak line",
+                data: [
+                    { x: peak.x, y: 0 },
+                    { x: peak.x, y: peak.y }
+                ],
+                borderColor: "red",
+                borderWidth: 1.5,
+                borderDash: [6, 6],   // пунктир
+                pointRadius: 0,
+                fill: false,
+                tension: 0
+            });
+        });
 
         chartBottom = new Chart(canvas, {
             type: "scatter",
-            data: {
-                datasets: [
-                    {
-                        type: "line",
-                        label: "Сигнал",
-                        data: signalData,
-                        borderColor: "blue",
-                        borderWidth: 1,
-                        showLine: true,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0
-                    },
-                    {
-                        type: "scatter",
-                        label: "Выбранные пики",
-                        data: selectedPeaks,
-                        backgroundColor: "red",
-                        borderColor: "black",
-                        borderWidth: 1,
-                        pointRadius: 8,
-                        showLine: false,
-                        order: 10
-                    }
-                ]
-            },
+            data: { datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -243,6 +268,7 @@ function renderUIList(id, files, position){
             }
         });
     }
+
 
 /* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
 function fillTable(tableData){
