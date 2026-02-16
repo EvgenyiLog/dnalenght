@@ -36,7 +36,7 @@ docs = [
     "sphinx>=9.1.0",
 ]
 vendor = [
-    "pyyawt;sys_platform='win64' and python_version>='3.14'"
+    "pyyawt;sys_platform='win32' and python_version>='3.14' and platform_machine=='AMD64'"
 ]
 
 [tool.setuptools]
