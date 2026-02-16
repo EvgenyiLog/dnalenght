@@ -26,7 +26,9 @@ jobs:
           pip install uv
 
       - name: Sync dependencies
-        run: uv sync  --dev --no-group vendor
+        run: |
+          rm -f uv.lock
+          uv sync  --dev --no-group vendor
 
       # ---- sanity ----
       - name: Show version
