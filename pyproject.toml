@@ -1,6 +1,6 @@
 [project]
 name = "server"
-version = "0.0.8"
+version = "0.0.9"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -35,6 +35,9 @@ docs = [
     "pdoc>=16.0.0",
     "sphinx>=9.1.0",
 ]
+vendor = [
+    "pyyawt",
+]
 
 [tool.setuptools]
 include-package-data = true
@@ -56,6 +59,7 @@ exclude = [
 ]
 
 [tool.uv.sources]
+pyyawt = { path = "vendor/win/pyyawt-0.1.2.dev0+f4f6416-cp314-cp314-win_amd64.whl" }
 
 [tool.uv.extra-build-dependencies]
 pyyawt = ["importlib-metadata>=4.0", "typing-extensions"]

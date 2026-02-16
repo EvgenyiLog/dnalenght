@@ -78,21 +78,24 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
                 metadata['SpectrCalibration'] = curves
             continue
         
-        if elem.tag == 'double':         
-        
-            conc = elem.get('Concentration')
-            metadata['Concentration'] = conc         
-        
+        if elem.tag == 'double':
+            # --- concentration ---
+            conc_attr = elem.get('Concentration')
+            try:
+                conc_float = float(conc_attr) if conc_attr is not None else None
+            except (ValueError, TypeError):
+                conc_float = None
 
-         
-            size = elem.text.strip() if elem.text else None
-           
+            # --- size ---
+            size_text = elem.text.strip() if elem.text and elem.text.strip() else None
+            try:
+                size_int = int(size_text) if size_text is not None else None
+            except (ValueError, TypeError):
+                size_int = None
 
-         
-            conc_float = float(conc) if conc else None
-            size_int   = int(size)   if size else None
             metadata['Concentration'] = conc_float
-            metadata['Size'] = size_int 
+            metadata['Size'] = size_int
+
         if elem.tag in elements_to_ignore:
             continue
             
