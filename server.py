@@ -201,32 +201,27 @@ async def analyze_pair(
         signal_raw = df_proc['dR110'].values
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
-        # df_table = score_peaks_genlib(signal_corrected)
+        df_sdflib1 = score_peaks_genlib(signal_corrected)
         locs, area, raw_ref, sd_molarity  =sdfind(signal_corrected,sizes_list,rz_list,concs_list)
-        # df_table=df_table.fillna(0)
-        # signal_for_peaks=signal_corrected
-        # peaks=df_table['Index'].astype(int).tolist()
-        # points=df_table['Mark'].astype(float).tolist()
-        # selected_indices=df_table[df_table['Selected'] == '✓']['Index'].astype(int).tolist()
+        df_sdflib1=df_sdflib1.fillna(0)
+        signal_for_peaks=signal_corrected
+        peaks=df_sdflib1['Index'].astype(int).tolist()
+        points=df_sdflib1['Mark'].astype(float).tolist()
+        selected_indices=df_sdflib1[df_sdflib1['Selected'] == '✓']['Index'].astype(int).tolist()
         bottom_peaks=[]
-        # for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
-        #     idx=int(row['Index'])
-        #     y_val=float(signal_corrected[idx])
-        #     bottom_peaks.append({"x":idx,"y":y_val})
-       
-        # calibrationresult=calculate_calibration_curve(df_table,'Index','Height')
-        # x_vals=calibrationresult.get("x_transformed")
-        # y_vals=calibrationresult.get("y_transformed")
+        for _,row in df_sdflib1[df_sdflib1['Selected'] == '✓'].iterrows():
+            idx=int(row['Index'])
+            y_val=float(signal_corrected[idx])
+            bottom_peaks.append({"x":idx,"y":y_val})
         x_vals=np.zeros(100)
         y_vals=np.zeros(100)
         x_vals=np.nan_to_num(x_vals,nan=0.0,posinf=0.0,neginf=0.0)
         y_vals=np.nan_to_num(y_vals,nan=0.0,posinf=0.0,neginf=0.0)
         # print(x_vals,y_vals)
         calibrationcurve={"x":x_vals.astype(float).tolist(),"y":y_vals.astype(float).tolist()}
-        data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
-        df_table=pd.DataFrame(data=data)
-        # data={'ReleaseTime':rz,'Concentrations':concs,'Sizes':sizes}
-        # df_table=pd.DataFrame(data=data)
+       
+        
+       
         
     if top_path:
         # Формируем DataFrame для таблицы (все колонки)
@@ -239,24 +234,22 @@ async def analyze_pair(
         signal_raw = df_proc['dR110'].values
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
-        # df_table = score_peaks_genlib(signal_corrected)
-        # df_table=df_table.fillna(0)
-        # signal_for_peaks=signal_corrected
-        # peaks=df_table['Index'].astype(int).tolist()
-        # points=df_table['Mark'].astype(float).tolist()
-        # selected_indices=df_table[df_table['Selected'] == '✓']['Index'].astype(int).tolist()
+       
         top_peaks=[]
         # for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
         #     idx=int(row['Index'])
         #     y_val=float(signal_corrected[idx])
         #     top_peaks.append({"x":idx,"y":y_val})
+        df_selected =df_sdflib1[df_sdflib1['Selected'] == '✓'].copy()
+        glfinddict=glfind(signal_corrected,df_selected['Index'].values,sizes_list,concs_list)
         
-        glfinddict=glfind(signal_corrected,locs,sizes_list,concs_list)
-        data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
+        print(glfinddict.get('t_final_locations'))
+
+       
+        data={'sizes':sizes,'Concentrations':concs,'ReleaseTime':rz}
         df_table=pd.DataFrame(data=data)
-        # print(metadata.keys())
-        # data={'ReleaseTime':rz,'Concentrations':concs,'Sizes':sizes}
-        # df_table=pd.DataFrame(data=data)
+        
+        
        
 
        
