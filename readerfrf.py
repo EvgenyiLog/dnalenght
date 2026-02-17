@@ -57,16 +57,22 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             continue
 
     channels_df = pd.DataFrame(channels_data).fillna(0)
+   
+    
+
+    # 3. Обработка метаданных с фильтрацией пустых значений
+    metadata = {}
+
     # --- СПИСКИ для накопления данных стандарта ---
     ss_sizes: List[float] = []
     ss_concentrations: List[float] = []
     ss_release_times: List[float] = []
     # === SizingStandard (ТОЧЕЧНО) ===
-    for std in root.findall('.//SizingStandard//double'):
+    for std in root.findall('.//SizeStandard//double'):
         # concentration
         conc_attr = std.get('Concentration')
         try:
-            conc_float = float(conc_attr) if conc_attr is not None else None
+            conc_float = float(conc_attr.replace(',', '.')) if conc_attr is not None else None
         except (ValueError, TypeError):
             conc_float = None
 
@@ -97,16 +103,12 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             ss_release_times.append(rz_float)
 
         
-        if   ss_concentrations:
-            metadata['Concentration'] = ss_concentrations
-        if ss_sizes:
-            metadata['Size'] = ss_sizes
-        if ss_release_times:
-           metadata['ReleaseTime']=ss_release_times
-
-    # 3. Обработка метаданных с фильтрацией пустых значений
-    metadata = {}
-    elements_to_ignore = {'Matrix', 'Data', 'Point','SizingStandard'}
+    
+    metadata['Concentrations'] = ss_concentrations
+    metadata['Size'] = ss_sizes
+    
+    metadata['ReleaseTime']=ss_release_times
+    elements_to_ignore = {'Matrix', 'Data', 'Point','SizeStandard'}
     
     
     for elem in root.iter():
@@ -124,45 +126,7 @@ def parse_frf_file(file_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
             if curves:
                 metadata['SpectrCalibration'] = curves
             continue
-        
-        # if elem.tag == 'double':
-        #     # --- concentration ---
-        #     conc_attr = elem.get('Concentration')
-        #     try:
-        #         conc_float = float(conc_attr) if conc_attr is not None else None
-        #     except (ValueError, TypeError):
-        #         conc_float = None
-
-        #     # --- size ---
-        #     size_text = elem.text.strip() if elem.text and elem.text.strip() else None
-        #     try:
-        #         size_int = int(size_text) if size_text is not None else None
-        #     except (ValueError, TypeError):
-        #         size_int = None
-
-        #     realeze_time=elem.get('ReleaseTime')
-        #     try:
-        #         if not realeze_time is None:
-        #             h, m, s = map(int, realeze_time.split(':'))
-        #             rz=timedelta(hours=h, minutes=m, seconds=s)
-        #             rz_float = rz.total_seconds() if rz is not None else None
-        #         else:
-        #            rz_float = None
-        #     except (ValueError, TypeError):
-        #         rz_float = None
-
-        #     if size_int is not None:
-        #         ss_sizes.append(size_int)
-        #     if conc_float is not None:
-        #         ss_concentrations.append(conc_float)
-        #     if rz_float is not None:
-        #         ss_release_times.append(rz_float)
-
-        #     metadata['Concentration'] = ss_concentrations
-        #     metadata['Size'] = ss_sizes
-
-        #     metadata['ReleaseTime']=ss_release_times
-        
+      
                     
 
         if elem.tag in elements_to_ignore:

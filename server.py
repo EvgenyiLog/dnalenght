@@ -239,7 +239,7 @@ async def analyze_pair(
         glfinddict=glfind(signal_corrected,locs,sizes,concs)
         # data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
         # df_table=pd.DataFrame(data=data)
-        print(metadata.keys())
+        # print(metadata.keys())
         data={'ReleaseTime':[rz],'Concentrations':[concs],'Sizes':[sizes]}
         df_table=pd.DataFrame(data=data)
        
