@@ -576,4 +576,4 @@ def sdfind(
     LIZ_orig = in_liz
     sd_molarity = ((conc * 1e-3) / (649.0 * LIZ_orig)) * 1e9
 
-    return locs2, area, raw_ref, sd_molarity    
+    return locs2.astype(int), area.astype(float), raw_ref, sd_molarity.astype(float)    

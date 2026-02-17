@@ -9,7 +9,7 @@ def msbackadj(
     Y: np.ndarray,
     step_size: Union[int, float, Callable] = 40,
     window_size: Union[int, float, Callable] = 140,
-    regression_method: str = 'pchip',
+    regression_method: str = 'linear',
     estimation_method: str = 'quantile',
     quantile_value: float = 0.1,
     preserve_heights: bool = False,

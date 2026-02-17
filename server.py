@@ -134,6 +134,7 @@ async def analyze_pair(
             matrix_df, channels_df, metadata = parse_frf_file(path)
             df_proc = subtract_reference_from_columns(channels_df, 50)
             signal_raw = df_proc['dR110'].values
+            print(len(signal_raw))
             time = np.arange(len(signal_raw))
             signal_corrected = msbackadj(time, signal_raw)
 
@@ -179,6 +180,20 @@ async def analyze_pair(
         sizes = metadata.get('Size')
         concs = metadata.get('Concentrations')
         rz=metadata.get('ReleaseTime')
+        if isinstance(rz, str):
+           rz_list = [float(x) for x in rz.split(",")]
+        else:
+            rz_list = np.array(rz, dtype=float)
+
+        if isinstance(concs, str):
+            concs_list = [float(x) for x in concs.split(",")]
+        else:
+            concs_list = np.array(concs, dtype=float)
+
+        if isinstance(sizes, str):
+           sizes_list = [float(x) for x in sizes.split(",")]
+        else:
+            sizes_list = np.array(sizes, dtype=float)
 
         
         
@@ -187,7 +202,7 @@ async def analyze_pair(
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
         # df_table = score_peaks_genlib(signal_corrected)
-        locs, area, raw_ref, sd_molarity  =sdfind(signal_corrected,sizes,rz,concs)
+        locs, area, raw_ref, sd_molarity  =sdfind(signal_corrected,sizes_list,rz_list,concs_list)
         # df_table=df_table.fillna(0)
         # signal_for_peaks=signal_corrected
         # peaks=df_table['Index'].astype(int).tolist()
@@ -210,8 +225,8 @@ async def analyze_pair(
         calibrationcurve={"x":x_vals.astype(float).tolist(),"y":y_vals.astype(float).tolist()}
         data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
         df_table=pd.DataFrame(data=data)
-        data={'ReleaseTime':[rz],'Concentrations':[concs],'Sizes':[sizes]}
-        df_table=pd.DataFrame(data=data)
+        # data={'ReleaseTime':rz,'Concentrations':concs,'Sizes':sizes}
+        # df_table=pd.DataFrame(data=data)
         
     if top_path:
         # Формируем DataFrame для таблицы (все колонки)
@@ -236,12 +251,12 @@ async def analyze_pair(
         #     y_val=float(signal_corrected[idx])
         #     top_peaks.append({"x":idx,"y":y_val})
         
-        glfinddict=glfind(signal_corrected,locs,sizes,concs)
-        # data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
-        # df_table=pd.DataFrame(data=data)
-        # print(metadata.keys())
-        data={'ReleaseTime':[rz],'Concentrations':[concs],'Sizes':[sizes]}
+        glfinddict=glfind(signal_corrected,locs,sizes_list,concs_list)
+        data={'locs':locs,'area':area,'sd_molarity':sd_molarity}
         df_table=pd.DataFrame(data=data)
+        # print(metadata.keys())
+        # data={'ReleaseTime':rz,'Concentrations':concs,'Sizes':sizes}
+        # df_table=pd.DataFrame(data=data)
        
 
        
