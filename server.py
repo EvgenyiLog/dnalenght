@@ -203,6 +203,10 @@ async def analyze_pair(
         signal_corrected = msbackadj(time, signal_raw)
         df_sdflib1 = score_peaks_genlib(signal_corrected)
         locs, area, raw_ref, sd_molarity  =sdfind(signal_corrected,sizes_list,rz_list,concs_list)
+        # print(locs)
+        # print(area)
+        # print(sd_molarity)
+
         df_sdflib1=df_sdflib1.fillna(0)
         signal_for_peaks=signal_corrected
         peaks=df_sdflib1['Index'].astype(int).tolist()
@@ -235,15 +239,63 @@ async def analyze_pair(
         time = np.arange(len(signal_raw))
         signal_corrected = msbackadj(time, signal_raw)
        
-        top_peaks=[]
-        # for _,row in df_table[df_table['Selected'] == '✓'].iterrows():
-        #     idx=int(row['Index'])
-        #     y_val=float(signal_corrected[idx])
-        #     top_peaks.append({"x":idx,"y":y_val})
+        
         df_selected =df_sdflib1[df_sdflib1['Selected'] == '✓'].copy()
         glfinddict=glfind(signal_corrected,df_selected['Index'].values,sizes_list,concs_list)
         
         print(glfinddict.get('t_final_locations'))
+        print(glfinddict.get('LibPeakLocations'))
+        print(glfinddict.get('molarity'))
+        print(glfinddict.get('all_areas'))
+        print(glfinddict.get('all_peaksCorr'))
+        print(glfinddict.get('all_peaks'))
+        print(glfinddict.get('all_areasConc'))
+        # print(glfinddict.get('unr'))
+        # print(glfinddict.get('hpx'))
+        # print(glfinddict.get('stp'))
+        print(glfinddict.get('st_peaks'))
+        print(glfinddict.get('st_length'))
+        peak_indices = glfinddict.get('st_length')
+
+        top_peaks = []
+
+        # Проверяем, что индексы существуют и не пустые
+        if peak_indices is not None and len(peak_indices) > 0:
+            for idx in peak_indices:
+                # Приводим индекс к целому числу (на случай если это numpy.int64)
+                idx = int(idx)
+        
+                # Получаем значение сигнала по этому индексу
+                # Убедитесь, что signal_corrected доступен в этой области видимости
+                y_val = float(signal_corrected[idx])
+        
+                top_peaks.append({"x": idx, "y": y_val})
+
+        # Получаем данные из словаря
+        x_raw = glfinddict.get('st_length')   # индексы, например [122, 333]
+        y_raw = glfinddict.get('st_peaks')    # значения, например [152.5, 354.1]
+
+        # Обрабатываем на случай None или пустых массивов
+        if x_raw is not None and y_raw is not None and len(x_raw) == len(y_raw):
+            # Преобразуем в numpy-массивы для удобства обработки
+            x_vals = np.array(x_raw, dtype=float)
+            y_vals = np.array(y_raw, dtype=float)
+    
+            # Заменяем NaN/Inf на 0.0 (как у вас в исходном коде)
+            x_vals = np.nan_to_num(x_vals, nan=0.0, posinf=0.0, neginf=0.0)
+            y_vals = np.nan_to_num(y_vals, nan=0.0, posinf=0.0, neginf=0.0)
+        else:
+            # Если данных нет — создаём пустые массивы
+            x_vals = np.zeros(100)
+            y_vals = np.zeros(100)
+
+        # Формируем итоговый словарь для JSON/графика
+        calibrationcurve = {
+        "x": x_vals.tolist(),
+        "y": y_vals.tolist()
+        }
+
+
 
        
         data={'sizes':sizes,'Concentrations':concs,'ReleaseTime':rz}
