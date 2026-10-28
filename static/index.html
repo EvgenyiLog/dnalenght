@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<title>FRF DNA Analyzer</title>
+<script src="/static/js/chart.umd.js"></script>
+<script src="/static/js/jspdf.umd.min.js"></script>
+<script src="/static/fonts/DejaVuSans.base64.js"></script>
+<style>
+:root {
+    --bg: #f0f2f5; --card: #ffffff; --text: #333; --border: #ccc; --accent: #007bff;
+}
+[data-theme="dark"] { --bg: #18191a; --card: #242526; --text: #e4e6eb; --border: #3e4042; --accent: #2d88ff; }
+body { font-family: Segoe UI, sans-serif; background: var(--bg); color: var(--text); margin:0; padding:20px; transition:0.3s; }
+.container { max-width:1400px; margin:auto; background: var(--card); padding:20px; border-radius:12px; }
+.folder-input { display:flex; gap:10px; margin-bottom:20px; align-items:center; }
+.input-wide { width: 90%; padding:8px; border-radius:5px; border:1px solid var(--border); }
+button { padding:10px 20px; border:none; border-radius:5px; cursor:pointer; color:white; }
+.scan-btn { background: var(--accent); }
+#analyzeBtn { background:#28a745; }
+#reportBtn { background:#6c757d; }
+#themeBtn { background:#ffc107; color:#333; width: 10%; }
+
+.main-layout { display:grid; grid-template-columns:350px 1fr; gap:20px; }
+.file-list { height:240px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; }
+.file-item { padding:8px; cursor:pointer; border-bottom:1px solid var(--border); }
+.file-item.active { background: var(--accent); color:white; }
+.canvas-container { height:320px; margin-bottom:20px; }
+#dataTable { width:100%; border-collapse:collapse; margin-top:10px; }
+#dataTable th, #dataTable td { border:1px solid var(--border); padding:5px; text-align:center; font-size:12px; }
+#dataTable th { background: var(--accent); color:white; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>🧬 Signal Processor</h2>
+
+<div class="folder-input">
+<input id="pathInput" class="input-wide" placeholder="Введите путь к папке">
+<button class="scan-btn">Сканировать</button>
+</div>
+
+<div class="folder-input">
+<input id="reportName" class="input-wide" type="text" placeholder="Имя отчёта PDF">
+<button id="analyzeBtn">Анализ</button>
+<button id="reportBtn">Отчёт</button>
+<button id="themeBtn">🌙 / ☀️ Тема</button>
+</div>
+
+<div class="main-layout">
+<aside>
+<h3> Genlib (Ref)</h3>
+<div id="listKeyword" class="file-list"></div>
+
+<h3>Leader</h3>
+<div id="listOther" class="file-list"></div>
+</aside>
+
+<main>
+<div class="canvas-container">
+<canvas id="chartTop"></canvas>
+</div>
+<div class="canvas-container">
+<canvas id="chartBottom"></canvas>
+</div>
+
+<table id="dataTable">
+<thead>
+<tr>
+<th>Index</th>
+<th>Top Raw</th>
+<th>Top Corrected</th>
+<th>Bottom Raw</th>
+<th>Bottom Corrected</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="5" style="color:#888;">Выберите файл для отображения данных</td></tr>
+</tbody>
+</table>
+</main>
+</div>
+</div>
+
+<script>
+let chartTop=null;
+let chartBottom=null;
+let pathMap={};
+let selectedTopFile=null;
+let selectedBottomFile=null;
+
+/* ---------- СКАН ---------- */
+document.querySelector('.scan-btn').onclick = async () => {
+    const fd = new FormData();
+    fd.append("folder_path", pathInput.value);
+    const res = await fetch("/scan-folder/", { method:"POST", body:fd });
+    const data = await res.json();
+
+    pathMap={};
+    [...data.keyword_files, ...data.other_files].forEach(f => pathMap[f.title]=f.path);
+
+    renderUIList("listKeyword", data.keyword_files,"top");
+    renderUIList("listOther", data.other_files,"bottom");
+};
+
+/* ---------- СПИСОК ФАЙЛОВ ---------- */
+function renderUIList(id, files, position){
+    const el=document.getElementById(id);
+    el.innerHTML=files.length? '' : '<div style="padding:10px;color:#888;">Нет файлов</div>';
+
+    files.forEach(fileObj=>{
+        const item=document.createElement('div');
+        item.className='file-item';
+        const displayName=fileObj.title || fileObj.path || JSON.stringify(fileObj);
+        item.textContent=displayName;
+
+        item.addEventListener('click',()=>{
+            el.querySelectorAll('.file-item').forEach(i=>i.classList.remove('active'));
+            item.classList.add('active');
+
+            const fullPath=fileObj.path || pathMap[displayName];
+            if(position==="top"){ selectedTopFile=fullPath; loadPairAnalysis(); }
+            else{ selectedBottomFile=fullPath; loadPairAnalysis(); }
+        });
+        el.appendChild(item);
+    });
+}
+
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+async function loadPairAnalysis() {
+
+    if (!selectedTopFile || !selectedBottomFile) return;
+
+    const fd = new FormData();
+    fd.append("top_path", selectedTopFile);
+    fd.append("bottom_path", selectedBottomFile);
+
+    const res = await fetch("/analyze-pair/", {
+        method: "POST",
+        body: fd
+    });
+
+    const data = await res.json();
+
+    console.log("TOP PEAKS:", data.top_peaks);
+    console.log("BOTTOM PEAKS:", data.bottom_peaks);
+    console.log("CALIBRATION:", data.calibrationcurve);
+
+    // 🔵 Рисуем оба графика с пиками
+    drawChartPair(data.top, "chartTop", data.top_peaks);
+    drawChartPair(data.bottom, "chartBottom", data.bottom_peaks);
+
+    fillTable(data.table);
+
+    // 🔵 Строим скрытый calibration
+    drawCalibrationCurve(data.calibrationcurve);
+
+    window.tableData = data.table;
+}
+
+
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+/* ---------- ЗАГРУЗКА ПАРЫ ФАЙЛОВ ---------- */
+async function loadPairAnalysis() {
+    if (!selectedTopFile || !selectedBottomFile) return;
+
+    const fd = new FormData();
+    fd.append("top_path", selectedTopFile);
+    fd.append("bottom_path", selectedBottomFile);
+
+    const res = await fetch("/analyze-pair/", { method: "POST", body: fd });
+    const data = await res.json();
+
+    console.log("TOP PEAKS FROM SERVER:", data.top_peaks);
+    console.log("BOTTOM PEAKS FROM SERVER:", data.bottom_peaks);
+    console.log("CALIBRATION CURVE:", data.calibrationcurve);
+
+    // ===== ВЕРХНИЙ ГРАФИК =====
+    drawChartPair(
+        data.top,                 // данные верхнего сигнала
+        "chartTop",               // id канваса верхнего графика
+        data.top_peaks,           // точки пиков
+        data.calibrationcurve     // скрытая calibration curve
+    );
+
+    // ===== НИЖНИЙ ГРАФИК =====
+    drawChartPair(
+        data.bottom,              // данные нижнего сигнала
+        "chartBottom",            // id канваса нижнего графика
+        data.bottom_peaks,        // точки пиков
+        data.calibrationcurve     // скрытая calibration curve
+    );
+
+    // ===== Таблица =====
+    fillTable(data.table);
+
+    // Сохраняем extra графики для PDF
+    window.extraTop = data.extra_top;
+    window.extraBottom = data.extra_bottom;
+    window.calibrationcurve=data.calibrationcurve;
+
+    // Сохраняем таблицу для PDF
+    window.tableData = data.table;
+}
+
+
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С FILL/VLINES/HLINES ---------- */
+/* ---------- ПОСТРОЕНИЕ ГРАФИКА С ПИКАМИ, ЛИНИЯМИ И CALIBRATION CURVE ---------- */
+function drawChartPair(data, canvasId, selectedPeaks = [], calibrationCurve = null) {
+    const canvas = document.getElementById(canvasId);
+
+    // Уничтожаем предыдущий график, если он есть
+    if (canvasId === "chartTop" && chartTop) chartTop.destroy();
+    if (canvasId === "chartBottom" && chartBottom) chartBottom.destroy();
+
+    // Данные основного сигнала
+    const signalData = data.corrected.map((y, i) => ({ x: i, y: y }));
+
+    const datasets = [
+        // 🔵 Основной сигнал
+        {
+            type: "line",
+            label: "Сигнал",
+            data: signalData,
+            borderColor: "blue",
+            borderWidth: 1,
+            showLine: true,
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+        },
+        // 🔴 Пики
+        {
+            type: "scatter",
+            label: "Выбранные пики",
+            data: selectedPeaks,
+            backgroundColor: "red",
+            borderColor: "black",
+            borderWidth: 1,
+            pointRadius: 6,
+            showLine: false,
+            order: 10
+        }
+    ];
+
+    // 🔴 Вертикальные линии для каждого пика
+    selectedPeaks.forEach(peak => {
+        datasets.push({
+            type: "line",
+            label: "Peak line",
+            data: [
+                { x: peak.x, y: 0 },
+                { x: peak.x, y: peak.y }
+            ],
+            borderColor: "red",
+            borderWidth: 1.5,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            fill: false,
+            tension: 0
+        });
+    });
+
+    // ⚫ Скрытая calibration curve
+    if (calibrationCurve) {
+        datasets.push({
+            type: "line",
+            label: "Calibration curve",
+            data: calibrationCurve.x.map((xVal, i) => ({ x: xVal, y: calibrationCurve.y[i] })),
+            borderColor: "green",
+            borderWidth: 1,
+            showLine: true,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+            hidden: true // скрытая
+        });
+    }
+
+    const chartConfig = {
+        type: "scatter",
+        data: { datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+                x: { type: "linear", title: { display: true, text: "Индекс" } },
+                y: { title: { display: true, text: "Интенсивность" } }
+            }
+        }
+    };
+
+    // Сохраняем график в глобальную переменную
+    if (canvasId === "chartTop") chartTop = new Chart(canvas, chartConfig);
+    if (canvasId === "chartBottom") chartBottom = new Chart(canvas, chartConfig);
+}
+
+/*------СКРЫТАЯ КАЛИБРОВОЧНАЯ КРИВАЯ----*/
+function drawCalibrationCurve(curveData) {
+
+    const canvas = document.getElementById("hiddenChart");
+
+    if (window.calibrationChart)
+        window.calibrationChart.destroy();
+
+    const points = curveData.x.map((xVal, i) => ({
+        x: xVal,
+        y: curveData.y[i]
+    }));
+
+    window.calibrationChart = new Chart(canvas, {
+        type: "scatter",
+        data: {
+            datasets: [{
+                type: "line",
+                label: "Calibration Curve",
+                data: points,
+                borderColor: "green",
+                pointRadius: 5,
+                showLine: true,
+                tension: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            animation: false,
+            scales: {
+                x: { type: "linear" },
+                y: { type: "linear" }
+            }
+        }
+    });
+}
+
+/* ---------- ЗАПОЛНЕНИЕ ТАБЛИЦЫ ---------- */
+function fillTable(tableData){
+    const tbody = document.querySelector("#dataTable tbody");
+    const thead = document.querySelector("#dataTable thead");
+
+    tbody.innerHTML = "";
+
+    if(!tableData || !tableData.length){
+        tbody.innerHTML = '<tr><td colspan="10" style="color:#888;">Нет данных</td></tr>';
+        return;
+    }
+
+    // --- Динамическое создание заголовков ---
+    const colNames = Object.keys(tableData[0]);
+    thead.innerHTML = "<tr>" + colNames.map(c=>`<th>${c}</th>`).join("") + "</tr>";
+
+    // --- Заполняем строки ---
+    tableData.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = colNames.map(c => `<td>${row[c] !== undefined ? row[c] : ""}</td>`).join("");
+        tbody.appendChild(tr);
+    });
+}
+/* ---------- ШРИФТ PDF ---------- */
+function initPdfFont(pdf){
+    pdf.addFileToVFS("app/static/fonts/DejaVuSans.ttf", window.DejaVuSansBase64);
+    pdf.addFont("DejaVuSans.ttf", "DejaVuSans", "normal");
+    pdf.setFont("DejaVuSans");
+}
+
+
+/* ---------- КНОПКА PDF ---------- */
+document.getElementById("reportBtn").onclick = async () => {
+    if (!window.extraTop || !window.extraBottom || !window.tableData || !window.calibrationcurve) {
+        alert("Сначала выберите файлы и убедитесь, что таблица и калибровочная кривая загружены");
+        return;
+    }
+
+    const reportName = document.getElementById("reportName").value || "report";
+    const { jsPDF } = window.jspdf;
+
+    // Создаём PDF в альбомной ориентации
+    const pdf = new jsPDF("l", "mm", "a4");
+
+    // Функция для вставки canvas без обрезки
+    function addCanvasToPdf(canvas, yPos) {
+        const imgData = canvas.toDataURL("image/png");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const ratio = canvas.width / canvas.height;
+        const imgWidth = pageWidth - 20; // отступ 10 мм с каждой стороны
+        const imgHeight = imgWidth / ratio;
+        pdf.addImage(imgData, "PNG", 10, yPos, imgWidth, imgHeight);
+    }
+
+    // --- Top график ---
+    initPdfFont(pdf);
+    pdf.setFontSize(14);
+    pdf.text("Top Graph", 10, 10);
+    addCanvasToPdf(chartTop.canvas, 15);
+
+    // --- Bottom график ---
+    pdf.addPage();
+    pdf.text("Bottom Graph", 10, 10);
+    addCanvasToPdf(chartBottom.canvas, 15);
+
+    // --- Calibration Curve (вместо Extra графика) ---
+    pdf.addPage();
+    pdf.text("Calibration Curve", 10, 10);
+
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = 1200;
+    tempCanvas.height = 300;
+
+    // Строим калибровочную кривую из данных с бекенда
+    new Chart(tempCanvas, {
+        type: "line",
+        data: {
+            datasets: [{
+                label: "Calibration Curve",
+                data: window.calibrationcurve.x.map((xVal, i) => ({ x: xVal, y: window.calibrationcurve.y[i] })),
+                borderColor: "green",
+                backgroundColor: "green",
+                pointRadius: 2,
+                fill: false,
+                tension: 0
+            }]
+        },
+        options: {
+            responsive: false,
+            animation: false,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: "linear", title: { display: true, text: "Index" } },
+                y: { title: { display: true, text: "Height" } }
+            }
+        }
+    });
+
+    addCanvasToPdf(tempCanvas, 15);
+
+    // --- Таблица ---
+    pdf.addPage();
+    pdf.setFontSize(10);
+
+    const tableData = window.tableData;
+    if (tableData && tableData.length) {
+        const colNames = Object.keys(tableData[0]);
+        const colWidth = (pdf.internal.pageSize.getWidth() - 20) / colNames.length;
+        let startY = 20;
+
+        // Заголовки таблицы
+        pdf.setFont("helvetica", "bold");
+        colNames.forEach((col, i) => pdf.text(String(col), 10 + i * colWidth, startY));
+        startY += 7;
+
+        pdf.setFont("helvetica", "normal");
+
+        // Строки таблицы
+        tableData.forEach((row) => {
+            if (startY > pdf.internal.pageSize.getHeight() - 15) {
+                pdf.addPage();
+                startY = 20;
+                colNames.forEach((col, i) => pdf.text(String(col), 10 + i * colWidth, startY));
+                startY += 7;
+            }
+            colNames.forEach((col, i) => {
+                let text = row[col] !== undefined ? String(row[col]) : "";
+                pdf.text(text, 10 + i * colWidth, startY);
+            });
+            startY += 7;
+        });
+    } else {
+        pdf.text("Нет данных", 10, 20);
+    }
+
+    pdf.save(reportName + ".pdf");
+};
+
+/* ---------- ТЕМА ---------- */
+document.getElementById("themeBtn").onclick=()=>{
+    const html=document.documentElement;
+    const next=html.getAttribute("data-theme")==="light"? "dark":"light";
+    html.setAttribute("data-theme", next);
+};
+</script>
+</body>
+</html>
